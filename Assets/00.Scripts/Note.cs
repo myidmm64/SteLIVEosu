@@ -23,7 +23,7 @@ public class Note : PoolableObject
 
     private IEnumerator Test()
     {
-        yield return new WaitForSeconds(1.2f);
+        yield return new WaitForSeconds(1.05f);
         PoolManager.Instance.Push(this);
     }
 }

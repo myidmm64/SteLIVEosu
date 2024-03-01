@@ -9,6 +9,6 @@ public class ApproachCircle : MonoBehaviour
     {
         transform.DOKill();
         transform.transform.localScale = Vector3.one * 2f;
-        transform.DOScale(1f, duration);
+        transform.DOScale(1f, duration).SetEase(Ease.Linear);
     }
 }

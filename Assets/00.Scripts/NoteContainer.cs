@@ -6,7 +6,17 @@ public class NoteContainer : MonoBehaviour
 {
     [SerializeField]
     private int bpm = 120;
+    [SerializeField]
+    private Vector2 _minPosition = new Vector2(-8f, -4.3f);
+    [SerializeField]
+    private Vector2 _maxPosition = new Vector2(8f, 4.3f);
+
     double currentTime;
+
+    private void Start()
+    {
+        
+    }
 
     private void Update()
     {
@@ -14,9 +24,9 @@ public class NoteContainer : MonoBehaviour
         if(currentTime >= 60d / bpm)
         {
             GameObject note = PoolManager.Instance.Pop(EPoolType.Note).gameObject;
-            currentTime = 60d / bpm;
+            currentTime -= 60d / bpm;
             note.transform.SetParent(null);
-            note.transform.position = transform.position;
+            note.transform.position = new Vector2(Random.Range(_minPosition.x, _maxPosition.x), Random.Range(_minPosition.y, _maxPosition.y));
         }
     }
 }

@@ -464,7 +464,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7dd7e896ceb3b7f42b39353a4662d703, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bpm: 1
+  bpm: 80
+  _minPosition: {x: -8, y: -4.3}
+  _maxPosition: {x: 8, y: 4.3}
 --- !u!4 &1288696247
 Transform:
   m_ObjectHideFlags: 0
