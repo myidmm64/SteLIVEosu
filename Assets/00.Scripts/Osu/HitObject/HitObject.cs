@@ -32,7 +32,7 @@ public abstract class HitObject : PoolableObject
     public void InitHitObject(double hitTime, float approachTime)
     {
         _hitTime = hitTime;
-        _approachCircle.AnimationStart(approachTime);
+        //_approachCircle.AnimationStart(approachTime);
         StartCoroutine(WaitAndPush(approachTime + 0.05f));
     }
 
