@@ -2373,11 +2373,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dc0dde858bfc544c8ff933a796df239, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playField: {fileID: 1964226290}
-  _osuFile: {fileID: 102900000, guid: c5170b08057c5564b9be7f0ed015e993, type: 3}
-  _offset: 0
-  _startBeats: []
-  _positionPixels: []
 --- !u!1 &1014817456
 GameObject:
   m_ObjectHideFlags: 0
@@ -2933,75 +2928,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1283704557}
   m_CullTransparentMesh: 1
---- !u!1001 &1359932356
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 3518002901916387097, guid: 1260c8b888b3ab447a5f0673a693a685, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3518002901916387097, guid: 1260c8b888b3ab447a5f0673a693a685, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3518002901916387097, guid: 1260c8b888b3ab447a5f0673a693a685, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6137166998795565808, guid: 1260c8b888b3ab447a5f0673a693a685, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 3.75
-      objectReference: {fileID: 0}
-    - target: {fileID: 6137166998795565808, guid: 1260c8b888b3ab447a5f0673a693a685, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.9
-      objectReference: {fileID: 0}
-    - target: {fileID: 6137166998795565808, guid: 1260c8b888b3ab447a5f0673a693a685, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6137166998795565808, guid: 1260c8b888b3ab447a5f0673a693a685, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6137166998795565808, guid: 1260c8b888b3ab447a5f0673a693a685, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6137166998795565808, guid: 1260c8b888b3ab447a5f0673a693a685, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6137166998795565808, guid: 1260c8b888b3ab447a5f0673a693a685, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6137166998795565808, guid: 1260c8b888b3ab447a5f0673a693a685, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6137166998795565808, guid: 1260c8b888b3ab447a5f0673a693a685, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6137166998795565808, guid: 1260c8b888b3ab447a5f0673a693a685, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8809831985189187170, guid: 1260c8b888b3ab447a5f0673a693a685, type: 3}
-      propertyPath: m_Name
-      value: HitCircle
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 1260c8b888b3ab447a5f0673a693a685, type: 3}
 --- !u!1 &1448576893
 GameObject:
   m_ObjectHideFlags: 0
@@ -4078,6 +4004,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5e2ea8b24e0f104f8850c69d26a4dd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _judgementSprites:
+  - {fileID: 21300000, guid: 050fb8404c350024fb2948a2e1c6122e, type: 3}
+  - {fileID: 21300000, guid: 88c50a24f2e5371409fefee7b50520e5, type: 3}
+  - {fileID: 21300000, guid: 3d512c9c96e661e4f901c037ba2bcf8c, type: 3}
+  - {fileID: 21300000, guid: b970d297e1ce8ec4da59de5e49670916, type: 3}
+  - {fileID: 21300000, guid: 050fb8404c350024fb2948a2e1c6122e, type: 3}
+  _playField: {fileID: 1964226290}
   _bgm: {fileID: 1014817457}
 --- !u!1 &2059955876
 GameObject:
@@ -4263,4 +4196,3 @@ SceneRoots:
   - {fileID: 1964226289}
   - {fileID: 177472252}
   - {fileID: 316082743}
-  - {fileID: 1359932356}

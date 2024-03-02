@@ -6,6 +6,10 @@ using UnityEngine;
 public class BeatmapPlayer : MonoBehaviour
 {
     [SerializeField]
+    private List<Sprite> _judgementSprites = new List<Sprite>();
+    [SerializeField]
+    private OsuPlayField _playField = null;
+    [SerializeField]
     private AudioSource _bgm = null;
     private Beatmap _beatmap = null;
 
@@ -17,8 +21,10 @@ public class BeatmapPlayer : MonoBehaviour
     // Create HitObject Setting
     private List<HitObjectData> _hitObjectDatas = new List<HitObjectData>();
     private Vector3 _circleSize;
-    private double _approachDuration = 0;
+    private double _preemptDuration = 0;
     private double _fadeinDuration = 0;
+
+    private Queue<HitObject> _hitObjects = new Queue<HitObject>();
 
     public void PlayBeatmap()
     {
@@ -31,7 +37,7 @@ public class BeatmapPlayer : MonoBehaviour
         _hitObjectDatas = _beatmap.osuFile.hitObject.hitObjectDatas;
         float r = 1f - 0.082f * _beatmap.osuFile.difficulty.circleSize;
         _circleSize = new Vector3(r, r);
-        _approachDuration = GetApproachAnimationDuration(_beatmap.osuFile.difficulty.approachRate);
+        _preemptDuration = GetApproachAnimationDuration(_beatmap.osuFile.difficulty.approachRate);
         _fadeinDuration = GetHitObjectFadeInDuration(_beatmap.osuFile.difficulty.approachRate);
     }
 
@@ -59,6 +65,19 @@ public class BeatmapPlayer : MonoBehaviour
 
     private void Update()
     {
+        if (!_bgm.isPlaying) return;
+        if (_currentIndex >= _hitObjectDatas.Count) return;
+
+        _currentTime += Time.deltaTime;
+        _currentMs = TimeSpan.FromSeconds(_currentTime).TotalMilliseconds;
+        if (_hitObjectDatas[_currentIndex].hitTime - _preemptDuration < _currentMs)
+        {
+            HitObject hitObject = PoolManager.Instance.Pop(EPoolType.HitObject) as HitObject;
+            hitObject.InitHitObject(_hitObjectDatas[_currentIndex].hitTime, _preemptDuration, _fadeinDuration);
+            hitObject.transform.localScale = _circleSize;
+            hitObject.transform.position = _playField.OsuPixelToWorldPosition(new Vector2Int(_hitObjectDatas[_currentIndex].x, _hitObjectDatas[_currentIndex].y));
+            _currentIndex++;
+        }
     }
 
     private bool IsInputStarted()

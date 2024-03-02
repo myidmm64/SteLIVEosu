@@ -1,3 +1,5 @@
+using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,7 +16,11 @@ public enum EJudgement
 public abstract class HitObject : PoolableObject
 {
     private ApproachCircle _approachCircle = null;
+    private SpriteRenderer _spriteRenderer = null;
     private double _hitTime = 0;
+
+    private Sequence _circleAnimationSeq = null;
+    private Sequence _approachAnimationSeq = null;
 
     public override void PopInit()
     {
@@ -26,14 +32,55 @@ public abstract class HitObject : PoolableObject
 
     public override void StartInit()
     {
-        _approachCircle = transform.Find("ApproachCircle").GetComponent<ApproachCircle>(); 
+        _approachCircle = transform.Find("ApproachCircle").GetComponent<ApproachCircle>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    public void InitHitObject(double hitTime, float approachTime)
+    public void InitHitObject(double hitTime, double preemptMs, double fadeinMs)
     {
         _hitTime = hitTime;
-        //_approachCircle.AnimationStart(approachTime);
-        StartCoroutine(WaitAndPush(approachTime + 0.05f));
+        float preemptTime = (float)preemptMs * 0.001f;
+        float fadeTime = (float)fadeinMs * 0.001f;
+        Color noAlphaColor = Color.white;
+        noAlphaColor.a = 0f;
+        _spriteRenderer.color = noAlphaColor;
+        _approachCircle.transform.localScale = Vector3.one * 5f;
+        _approachCircle.spriteRenderer.color = noAlphaColor;
+
+        CircleAnimation(fadeTime);
+        ApproachAnimation(fadeTime, preemptTime);
+    }
+
+    private void CircleAnimation(float fadeTime)
+    {
+        if (_circleAnimationSeq != null) _circleAnimationSeq.Kill();
+        _circleAnimationSeq = DOTween.Sequence();
+
+        _circleAnimationSeq.Append(_spriteRenderer.DOFade(1f, fadeTime)).SetEase(Ease.Linear);
+        _circleAnimationSeq.AppendCallback(() =>
+        {
+            //TODO : Sprite Change
+        });
+        _circleAnimationSeq.Append(_spriteRenderer.DOFade(0f, fadeTime)).SetEase(Ease.Linear);
+        _circleAnimationSeq.AppendCallback(() =>
+        {
+            PoolManager.Instance.Push(this);
+        });
+    }
+
+    private void ApproachAnimation(float fadeTime, float preemptTime)
+    {
+        if (_approachAnimationSeq != null) _approachAnimationSeq.Kill();
+        _approachAnimationSeq = DOTween.Sequence();
+
+        _approachAnimationSeq.Append(_approachCircle.spriteRenderer.DOFade(1f, fadeTime)).SetEase(Ease.Linear);
+        _approachAnimationSeq.Join(_approachCircle.transform.DOScale(1f, preemptTime)).SetEase(Ease.Linear);
+        _approachAnimationSeq.AppendCallback(() =>
+        {
+            AudioPool.PopAudio(EAudioType.HitNormal);
+        });
+        _approachAnimationSeq.Append(_approachCircle.spriteRenderer.DOFade(0f, fadeTime)).SetEase(Ease.Linear)
+            .Join(_approachCircle.transform.DOScale(1.5f, fadeTime));
     }
 
     public EJudgement JudgementCalculate(double hitTime, int od)
@@ -52,12 +99,5 @@ public abstract class HitObject : PoolableObject
             return EJudgement.Miss;
 
         return EJudgement.None;
-    }
-
-    private IEnumerator WaitAndPush(float time)
-    {
-        yield return new WaitForSeconds(time);
-        AudioPool.PopAudio(EAudioType.HitNormal);
-        PoolManager.Instance.Push(this);
     }
 }
