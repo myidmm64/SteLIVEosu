@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class PoolManager : MonoSingleTon<PoolManager>
 {
-    [SerializeField]
     private PoolDataScriptableObject _poolDataSO = null;
+    private const string POOL_DATA_PATH = "SO\\PoolData";
+
     private Dictionary<EPoolType, Queue<PoolableObject>> _poolDic = new Dictionary<EPoolType, Queue<PoolableObject>>();
     private Transform _rootTrm = null;
 
@@ -15,6 +16,13 @@ public class PoolManager : MonoSingleTon<PoolManager>
 
     private void Init()
     {
+        _poolDataSO = Resources.Load(POOL_DATA_PATH) as PoolDataScriptableObject;
+        if(_poolDataSO == null)
+        {
+            Debug.LogError($"Resources\\{POOL_DATA_PATH} 경로에 PoolData가 없습니다");
+            return;
+        }
+
         if (_rootTrm == null)
         {
             Debug.LogWarning("rootTrm 없음.");

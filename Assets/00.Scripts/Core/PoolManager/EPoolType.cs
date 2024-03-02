@@ -1,5 +1,6 @@
 public enum EPoolType
 {
     None,
-    Note,
+    Audio,
+    HitObject,
 }
