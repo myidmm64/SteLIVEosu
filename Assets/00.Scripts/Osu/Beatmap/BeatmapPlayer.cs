@@ -6,6 +6,8 @@ using UnityEngine;
 public class BeatmapPlayer : MonoBehaviour
 {
     [SerializeField]
+    private CursorObject _cursor = null;
+    [SerializeField]
     private List<Sprite> _judgementSprites = new List<Sprite>();
     [SerializeField]
     private OsuPlayField _playField = null;
@@ -17,6 +19,8 @@ public class BeatmapPlayer : MonoBehaviour
     private int _currentIndex = 0;
     private double _currentTime = 0;
     private double _currentMs = 0;
+    public double CurrentMs => _currentMs;
+    public int OD => (int)_beatmap.osuFile.difficulty.overallDifficulty;
 
     // Create HitObject Setting
     private List<HitObjectData> _hitObjectDatas = new List<HitObjectData>();
@@ -73,10 +77,15 @@ public class BeatmapPlayer : MonoBehaviour
         if (_hitObjectDatas[_currentIndex].hitTime - _preemptDuration < _currentMs)
         {
             HitObject hitObject = PoolManager.Instance.Pop(EPoolType.HitObject) as HitObject;
-            hitObject.InitHitObject(_hitObjectDatas[_currentIndex].hitTime, _preemptDuration, _fadeinDuration);
+            hitObject.InitHitObject(this, _hitObjectDatas[_currentIndex].hitTime, _preemptDuration, _fadeinDuration);
             hitObject.transform.localScale = _circleSize;
             hitObject.transform.position = _playField.OsuPixelToWorldPosition(new Vector2Int(_hitObjectDatas[_currentIndex].x, _hitObjectDatas[_currentIndex].y));
             _currentIndex++;
+            _hitObjects.Enqueue(hitObject);
+        }
+
+        if (IsInputStarted())
+        {
         }
     }
 

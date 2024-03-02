@@ -36,8 +36,10 @@ public abstract class HitObject : PoolableObject
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    public void InitHitObject(double hitTime, double preemptMs, double fadeinMs)
+    BeatmapPlayer _test;
+    public void InitHitObject(BeatmapPlayer test, double hitTime, double preemptMs, double fadeinMs)
     {
+        _test = test;
         _hitTime = hitTime;
         float preemptTime = (float)preemptMs * 0.001f;
         float fadeTime = (float)fadeinMs * 0.001f;
@@ -77,7 +79,9 @@ public abstract class HitObject : PoolableObject
         _approachAnimationSeq.Join(_approachCircle.transform.DOScale(1f, preemptTime)).SetEase(Ease.Linear);
         _approachAnimationSeq.AppendCallback(() =>
         {
+            JudgementCalculate(_test.CurrentMs, _test.OD);
             AudioPool.PopAudio(EAudioType.HitNormal);
+            PoolManager.Instance.Pop(EPoolType.JudgementPopup).transform.position = transform.position + Vector3.up * 0.15f;
         });
         _approachAnimationSeq.Append(_approachCircle.spriteRenderer.DOFade(0f, fadeTime)).SetEase(Ease.Linear)
             .Join(_approachCircle.transform.DOScale(1.5f, fadeTime));
