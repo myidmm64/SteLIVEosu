@@ -16,8 +16,6 @@ public class OsuGameManager : MonoSingleTon<OsuGameManager>
     private int _offset = 0;
 
     [SerializeField]
-    private SHitObjectProperty _testSetting;
-    [SerializeField]
     private List<double> _startBeats = new List<double>();
     [SerializeField]
     private List<Vector2Int> _positionPixels = new List<Vector2Int>();

@@ -6,11 +6,11 @@ using TMPro;
 using UnityEngine;
 using static TMPro.TMP_Dropdown;
 
-public class DevelopHelperObj : MonoBehaviour
+public class DevelopHelperObj : MonoSingleTon<DevelopHelperObj>
 {
     public GameObject developUICanvas;
     public GameObject playFieldObject;
-    public TMP_Dropdown _songSelectDropdown;
+    public TMP_Dropdown songSelectDropdown;
 
     private void Start()
     {
@@ -24,7 +24,7 @@ public class DevelopHelperObj : MonoBehaviour
             OptionData songNameOptionData = new OptionData();
             songNameOptionData.text = songName;
             songNameOptionDatas.Add(songNameOptionData);
-            _songSelectDropdown.AddOptions(songNameOptionDatas);
+            songSelectDropdown.AddOptions(songNameOptionDatas);
         }
     }
 
