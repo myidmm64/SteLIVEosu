@@ -1,6 +1,7 @@
 using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public static class Utility
@@ -28,6 +29,19 @@ public static class Utility
                 _cam = Camera.main;
             }
             return _cam;
+        }
+    }
+
+    private static string _songDirectory = null;
+    public static string SongDirectory
+    {
+        get
+        {
+            if(_songDirectory == null)
+            {
+                _songDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, "01.Songs"));
+            }
+            return _songDirectory;
         }
     }
 }

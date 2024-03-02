@@ -7,18 +7,20 @@ public class Beatmap
 {
     public OsuFile osuFile;
     private readonly string _beatmapDirectory;
+    private readonly string _songName;
     private OsuFormatParser parser;
 
     public Beatmap(string songName)
     {
-        _beatmapDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, "01.Songs", songName));
+        _songName = songName;
+        _beatmapDirectory = Path.GetFullPath(Path.Combine(Utility.SongDirectory, songName));
         parser = new OsuFormatParser();
     }
 
     public void LoadOsuFile()
     {
         string directoryname = Path.GetFileName(_beatmapDirectory);
-        string osuFilePath = Path.GetFullPath(Path.Combine(_beatmapDirectory, $"{directoryname}.osu"));
+        string osuFilePath = Path.GetFullPath(Path.Combine(_beatmapDirectory, $"{_songName}.osu"));
         osuFile = parser.Parse(osuFilePath);
     }
 }
