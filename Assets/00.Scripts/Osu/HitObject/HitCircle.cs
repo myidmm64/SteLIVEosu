@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InputInspector : MonoBehaviour
+public class HitCircle : HitObject
 {
+
+
+
 }
