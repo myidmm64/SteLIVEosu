@@ -31,8 +31,8 @@ public class OsuFileSection_General : OsuFileSection
         int keyValueIndex = line.LastIndexOf(splitStr);
         if (keyValueIndex != -1)
         {
-            string keyString = line.Substring(0, keyValueIndex + 1);
-            string valueString = line.Substring(keyValueIndex + 1);
+            string keyString = line.Substring(0, keyValueIndex);
+            string valueString = line.Substring(keyValueIndex + 2);
             _keyValueDic.Add(keyString, valueString);
         }
     }
@@ -62,7 +62,7 @@ public class OsuFileSection_Metadata : OsuFileSection
         int keyValueIndex = line.LastIndexOf(splitStr);
         if (keyValueIndex != -1)
         {
-            string keyString = line.Substring(0, keyValueIndex + 1);
+            string keyString = line.Substring(0, keyValueIndex);
             string valueString = line.Substring(keyValueIndex + 1);
             _keyValueDic.Add(keyString, valueString);
         }
@@ -88,12 +88,14 @@ public class OsuFileSection_Events : OsuFileSection
 
     public override void Read(string line)
     {
-        if(isBackgroundLine)
+        if (isBackgroundLine)
         {
             string[] split = line.Split(",");
-            if (File.Exists(Path.Combine(_beatmapDirectory, split[2])))
+            string fileName = split[2].Replace("\"", "");
+            string filePath = Path.GetFullPath(Path.Combine(_beatmapDirectory, fileName));
+            if (File.Exists(filePath))
             {
-                _backgroundFileName = split[2];
+                _backgroundFileName = fileName;
             }
         }
         isBackgroundLine = line.Equals("//Background and Video events");
@@ -120,7 +122,7 @@ public class OsuFileSection_Difficulty : OsuFileSection
         int keyValueIndex = line.LastIndexOf(splitStr);
         if (keyValueIndex != -1)
         {
-            string keyString = line.Substring(0, keyValueIndex + 1);
+            string keyString = line.Substring(0, keyValueIndex);
             string valueString = line.Substring(keyValueIndex + 1);
             _keyValueDic.Add(keyString, valueString);
         }
@@ -131,11 +133,11 @@ public class OsuFileSection_Difficulty : OsuFileSection
         OsuFileSectionData_Difficulty difficultyData = _sectionData as OsuFileSectionData_Difficulty;
         string outValue = "";
         if (_keyValueDic.TryGetValue("HPDrainRate", out outValue)) difficultyData.hpDrainRate = float.Parse(outValue);
-        if (_keyValueDic.TryGetValue("CircleSize", out outValue)) difficultyData.hpDrainRate = float.Parse(outValue);
-        if (_keyValueDic.TryGetValue("OverallDifficulty", out outValue)) difficultyData.hpDrainRate = float.Parse(outValue);
-        if (_keyValueDic.TryGetValue("ApproachRate", out outValue)) difficultyData.hpDrainRate = float.Parse(outValue);
-        if (_keyValueDic.TryGetValue("SliderMultiplier", out outValue)) difficultyData.hpDrainRate = float.Parse(outValue);
-        if (_keyValueDic.TryGetValue("SliderTickRate", out outValue)) difficultyData.hpDrainRate = float.Parse(outValue);
+        if (_keyValueDic.TryGetValue("CircleSize", out outValue)) difficultyData.circleSize = float.Parse(outValue);
+        if (_keyValueDic.TryGetValue("OverallDifficulty", out outValue)) difficultyData.overallDifficulty = float.Parse(outValue);
+        if (_keyValueDic.TryGetValue("ApproachRate", out outValue)) difficultyData.approachRate = float.Parse(outValue);
+        if (_keyValueDic.TryGetValue("SliderMultiplier", out outValue)) difficultyData.sliderMultiplier = float.Parse(outValue);
+        if (_keyValueDic.TryGetValue("SliderTickRate", out outValue)) difficultyData.sliderTickRate = float.Parse(outValue);
         _keyValueDic.Clear();
     }
 }

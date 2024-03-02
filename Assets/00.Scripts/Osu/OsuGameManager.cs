@@ -36,12 +36,6 @@ public class OsuGameManager : MonoSingleTon<OsuGameManager>
         OsuFileParse();
     }
 
-    [ContextMenu("ÆÄ½Ì Å×½ºÆ®")]
-    public void ParseTest()
-    {
-
-    }
-
     private void OsuFileParse()
     {
         string realFilePath = AssetDatabase.GetAssetPath(_osuFile);

@@ -25,8 +25,9 @@ public class OsuFormatParser
             if (line.Equals("")) continue;
             if (line.StartsWith("[") && line.EndsWith("]"))
             {
-                string currentSectionStr = line.Substring(1, line.Length);
-                sections.Add(GetOsuFileSection(currentSectionStr, osuFile, beatmapDirectory));
+                string currentSectionStr = line.Substring(1, line.Length - 2);
+                OsuFileSection section = GetOsuFileSection(currentSectionStr, osuFile, beatmapDirectory);
+                if (section != null) sections.Add(section);
                 continue;
             }
             if (sections.Count == 0) continue;
@@ -37,7 +38,6 @@ public class OsuFormatParser
         {
             section.SetProperties();
         }
-
         return osuFile;
     }
 
@@ -48,6 +48,6 @@ public class OsuFormatParser
         "Events" => new OsuFileSection_Events(osuFile.events, beatmapDirectory),
         "Difficulty" => new OsuFileSection_Difficulty(osuFile.difficulty, beatmapDirectory),
         "HitObjects" => new OsuFileSection_HitObjects(osuFile.hitObject, beatmapDirectory),
-        _ => throw new NotImplementedException(),
+        _ => null,
     };
 }
