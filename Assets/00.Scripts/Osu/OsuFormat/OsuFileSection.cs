@@ -144,15 +144,25 @@ public class OsuFileSection_Difficulty : OsuFileSection
 
 public class OsuFileSection_HitObjects : OsuFileSection
 {
+    private List<HitObjectData> _hitObjectDatas = new List<HitObjectData>();
+
     public OsuFileSection_HitObjects(OsuFileSectionData sectionData, string beatmapDirectory) : base(sectionData, beatmapDirectory)
     {
     }
 
     public override void Read(string line)
     {
+        HitObjectData hitObjectData;
+        string[] splitData = line.Split(",");
+        hitObjectData.x = int.Parse(splitData[0]);
+        hitObjectData.y = int.Parse(splitData[1]);
+        hitObjectData.hitTime = int.Parse(splitData[2]);
+        _hitObjectDatas.Add(hitObjectData);
     }
 
     public override void SetProperties()
     {
+        OsuFileSectionData_HitObjects hitObjectData = _sectionData as OsuFileSectionData_HitObjects;
+        hitObjectData.hitObjectDatas = _hitObjectDatas;
     }
 }

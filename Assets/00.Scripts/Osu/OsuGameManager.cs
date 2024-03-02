@@ -39,7 +39,7 @@ public class OsuGameManager : MonoSingleTon<OsuGameManager>
         _currentMs = TimeSpan.FromSeconds(_currentTime).TotalMilliseconds;
         if (_startBeats[_currentIndex] - 1000 < _currentMs)
         {
-            _hitObject = PoolManager.Instance.Pop(EPoolType.Note) as HitObject;
+            _hitObject = PoolManager.Instance.Pop(EPoolType.HitObject) as HitObject;
             _hitObject.InitHitObject(_startBeats[_currentIndex], 1f);
             Vector2 spawnPosition = new Vector2(Random.Range(_minPosition.x, _maxPosition.x), Random.Range(_minPosition.y, _maxPosition.y));
             //_hitObject.transform.position = spawnPosition;

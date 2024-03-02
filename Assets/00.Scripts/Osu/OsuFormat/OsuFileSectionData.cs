@@ -39,13 +39,14 @@ public class OsuFileSectionData_Difficulty : OsuFileSectionData
 [System.Serializable]
 public class OsuFileSectionData_HitObjects : OsuFileSectionData
 {
-    [System.Serializable]
-    public struct HitObjectData
-    {
-        public int x;
-        public int y;
-        public int hitTime;
-    }
 
     public List<HitObjectData> hitObjectDatas = new List<HitObjectData>();
+}
+
+[System.Serializable]
+public struct HitObjectData
+{
+    public int x;
+    public int y;
+    public int hitTime;
 }
