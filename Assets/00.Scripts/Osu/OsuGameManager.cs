@@ -31,34 +31,6 @@ public class OsuGameManager : MonoSingleTon<OsuGameManager>
     private Vector2 _minPosition = new Vector2(-8f, -4.3f);
     private Vector2 _maxPosition = new Vector2(8f, 4.3f);
 
-    private void Start()
-    {
-        OsuFileParse();
-    }
-
-    private void OsuFileParse()
-    {
-        string realFilePath = AssetDatabase.GetAssetPath(_osuFile);
-        Debug.Log(realFilePath);
-        if (!File.Exists(realFilePath)) return;
-        _startBeats.Clear();
-        StreamReader reader = new StreamReader(realFilePath);
-        bool hitObjectsStart = false;
-        while (!reader.EndOfStream)
-        {
-            string line = reader.ReadLine();
-            if (!hitObjectsStart)
-            {
-                hitObjectsStart = line.Equals("[HitObjects]");
-                continue;
-            }
-            string[] properties = line.Split(",");
-            _startBeats.Add(Double.Parse(properties[2]) + _offset);
-            _positionPixels.Add(new Vector2Int(int.Parse(properties[0]), int.Parse(properties[1])));
-        }
-        reader.Close();
-    }
-
     private void Update()
     {
         if (_currentIndex >= _startBeats.Count) return;
@@ -90,6 +62,5 @@ public class OsuGameManager : MonoSingleTon<OsuGameManager>
             if (Input.GetKeyDown(key)) return true;
         }
         return false;
-
     }
 }

@@ -36,13 +36,15 @@ public class OsuFileSectionData_Difficulty : OsuFileSectionData
     public float sliderTickRate;
 }
 
+[System.Serializable]
 public class OsuFileSectionData_HitObjects : OsuFileSectionData
 {
+    [System.Serializable]
     public struct HitObjectData
     {
-        int x;
-        int y;
-        int hitTime;
+        public int x;
+        public int y;
+        public int hitTime;
     }
 
     public List<HitObjectData> hitObjectDatas = new List<HitObjectData>();

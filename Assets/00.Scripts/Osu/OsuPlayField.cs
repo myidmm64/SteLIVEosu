@@ -4,17 +4,13 @@ using UnityEngine;
 
 public class OsuPlayField : MonoBehaviour
 {
-    [SerializeField]
     private RectTransform _osuPixelPositionTrm = null;
-    private Camera _camera;
-
-    private void Start()
-    {
-        _camera = Camera.main;
-    }
 
     public Vector3 OsuPixelToWorldPosition(Vector2Int osuPixelPosition)
     {
+        if(_osuPixelPositionTrm == null)
+            _osuPixelPositionTrm = transform.Find("PlayField").Find("Position").GetComponent<RectTransform>();
+
         _osuPixelPositionTrm.anchoredPosition = new Vector2Int(osuPixelPosition.x, -osuPixelPosition.y);
         return _osuPixelPositionTrm.position;
     }

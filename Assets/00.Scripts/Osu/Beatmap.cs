@@ -10,6 +10,7 @@ public class Beatmap : MonoSingleTon<Beatmap>
     [SerializeField]
     private OsuFile osuFile;
 
+    #region DEVELOP
     [ContextMenu("ÆÄ½Ì Å×½ºÆ®")]
     public void ParseTest()
     {
@@ -17,4 +18,10 @@ public class Beatmap : MonoSingleTon<Beatmap>
         string path = Path.GetFullPath(Path.Combine(Application.dataPath, "01.Songs", "TestOsuFile", "beatmapTest.osu"));
         osuFile = parser.Parse(path);
     }
+
+    public void StartBeatmap()
+    {
+
+    }
+    #endregion
 }
