@@ -9,6 +9,8 @@ using Random = UnityEngine.Random;
 public class OsuGameManager : MonoSingleTon<OsuGameManager>
 {
     [SerializeField]
+    private OsuPlayField _playField = null;
+    [SerializeField]
     private DefaultAsset _osuFile;
     [SerializeField]
     private int _offset = 0;
@@ -65,11 +67,13 @@ public class OsuGameManager : MonoSingleTon<OsuGameManager>
         _currentMs = TimeSpan.FromSeconds(_currentTime).TotalMilliseconds;
         if (_startBeats[_currentIndex] - 1000 < _currentMs)
         {
-            _currentIndex++;
             _hitObject = PoolManager.Instance.Pop(EPoolType.Note) as HitObject;
             _hitObject.InitHitObject(_startBeats[_currentIndex], 1f);
             Vector2 spawnPosition = new Vector2(Random.Range(_minPosition.x, _maxPosition.x), Random.Range(_minPosition.y, _maxPosition.y));
-            _hitObject.transform.position = spawnPosition;
+            //_hitObject.transform.position = spawnPosition;
+            _hitObject.transform.position = _playField.OsuPixelToWorldPosition(_positionPixels[_currentIndex]);
+
+            _currentIndex++;
         }
 
         if (_hitObject != null && IsInputStarted())

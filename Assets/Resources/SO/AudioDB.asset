@@ -9,10 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fbffbc21d55c534fa72a1f0a7f4ee24, type: 3}
-  m_Name: PoolData
+  m_Script: {fileID: 11500000, guid: 80e69b8be629cee46a5dfefd1b2a4865, type: 3}
+  m_Name: AudioDB
   m_EditorClassIdentifier: 
-  poolDatas:
-  - spawnCount: 4
-    poolType: 1
-    obj: {fileID: 7603993719926986455, guid: 1260c8b888b3ab447a5f0673a693a685, type: 3}
+  audioDatas:
+  - audioType: 1
+    audioClip: {fileID: 8300000, guid: 16fe051efcbde454b9e640c0f29b8f40, type: 3}
+    vol: 1
+    pitch: 1

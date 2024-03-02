@@ -57,6 +57,7 @@ public abstract class HitObject : PoolableObject
     private IEnumerator WaitAndPush(float time)
     {
         yield return new WaitForSeconds(time);
+        AudioPool.PopAudio(EAudioType.HitNormal);
         PoolManager.Instance.Push(this);
     }
 }
