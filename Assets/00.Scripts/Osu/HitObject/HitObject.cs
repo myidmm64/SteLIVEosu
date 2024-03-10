@@ -93,14 +93,14 @@ public abstract class HitObject : PoolableObject
             //TODO : Sprite Change
         });
 
-        /*
         _circleAnimationSeq.Append(_spriteRenderer.DOFade(0f, fadeTime)).SetEase(Ease.Linear);
         _circleAnimationSeq.AppendCallback(() =>
         {
+            /*
             _beatmapPlayer.DequeueObject();
             PoolManager.Instance.Push(this);
+            */
         });
-        */
     }
 
     private void ApproachAnimation(float fadeTime, float preemptTime)
@@ -109,17 +109,17 @@ public abstract class HitObject : PoolableObject
         _approachAnimationSeq = DOTween.Sequence();
 
         _approachAnimationSeq.Append(_approachCircle.spriteRenderer.DOFade(1f, fadeTime)).SetEase(Ease.Linear);
-        _approachAnimationSeq.Join(_approachCircle.transform.DOScale(1f, preemptTime)).SetEase(Ease.Linear)
-            .AppendCallback(()=>
+        _approachAnimationSeq.Join(_approachCircle.transform.DOScale(1f, preemptTime)).SetEase(Ease.Linear);
+        _approachAnimationSeq.Append(_approachCircle.spriteRenderer.DOFade(0f, fadeTime)).SetEase(Ease.Linear)
+            .Join(_approachCircle.transform.DOScale(1.5f, fadeTime)).AppendCallback(() =>
             {
-
                 _circleAnimationSeq.Kill();
                 _approachAnimationSeq.Kill();
+                _circleAnimationSeq = null;
+                _approachAnimationSeq = null;
                 _beatmapPlayer.DequeueObject();
                 PoolManager.Instance.Push(this);
-            });
-        _approachAnimationSeq.Append(_approachCircle.spriteRenderer.DOFade(0f, fadeTime)).SetEase(Ease.Linear)
-            .Join(_approachCircle.transform.DOScale(1.5f, fadeTime));
+            }); ;
     }
 
     public EJudgement JudgementCalculate(double hitTime)
