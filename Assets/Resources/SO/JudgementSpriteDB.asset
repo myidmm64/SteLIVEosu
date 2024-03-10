@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a88260ebcdd28b4b9728ccde9fb4741, type: 3}
+  m_Name: JudgementSpriteDB
+  m_EditorClassIdentifier: 
+  judgementSpriteDatas:
+  - judgement: 4
+    sprite: {fileID: 21300000, guid: 050fb8404c350024fb2948a2e1c6122e, type: 3}
+  - judgement: 3
+    sprite: {fileID: 21300000, guid: b970d297e1ce8ec4da59de5e49670916, type: 3}
+  - judgement: 2
+    sprite: {fileID: 21300000, guid: 3d512c9c96e661e4f901c037ba2bcf8c, type: 3}
+  - judgement: 1
+    sprite: {fileID: 21300000, guid: 88c50a24f2e5371409fefee7b50520e5, type: 3}

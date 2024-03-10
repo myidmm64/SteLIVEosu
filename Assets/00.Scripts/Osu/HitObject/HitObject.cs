@@ -15,6 +15,11 @@ public enum EJudgement
 
 public abstract class HitObject : PoolableObject
 {
+    private BeatmapPlayer _beatmapPlayer = null;
+    private Vector2 _pos = Vector2.zero;
+    public Vector2 Pos => _pos;
+    protected EJudgement _judgement = EJudgement.None;
+
     private ApproachCircle _approachCircle = null;
     private SpriteRenderer _spriteRenderer = null;
     private double _hitTime = 0;
@@ -22,12 +27,21 @@ public abstract class HitObject : PoolableObject
     private Sequence _circleAnimationSeq = null;
     private Sequence _approachAnimationSeq = null;
 
+    public void TestColor(Color targetColor)
+    {
+        Color myColor = _spriteRenderer.color;
+        targetColor.a = myColor.a;
+        _spriteRenderer.color = targetColor;
+    }
+
     public override void PopInit()
     {
     }
 
     public override void PushInit()
     {
+        _spriteRenderer.DOKill();
+        TestColor(Color.white);
     }
 
     public override void StartInit()
@@ -36,21 +50,36 @@ public abstract class HitObject : PoolableObject
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    BeatmapPlayer _test;
-    public void InitHitObject(BeatmapPlayer test, double hitTime, double preemptMs, double fadeinMs)
+    public virtual void Init(BeatmapPlayer beatmapPlayer, double hitTime, Vector2 pos, Vector2 circleSize)
     {
-        _test = test;
+        _beatmapPlayer = beatmapPlayer;
         _hitTime = hitTime;
-        float preemptTime = (float)preemptMs * 0.001f;
-        float fadeTime = (float)fadeinMs * 0.001f;
+        _pos = pos;
+
+        transform.position = _pos;
+        transform.localScale = circleSize;
+
         Color noAlphaColor = Color.white;
         noAlphaColor.a = 0f;
         _spriteRenderer.color = noAlphaColor;
         _approachCircle.transform.localScale = Vector3.one * 5f;
         _approachCircle.spriteRenderer.color = noAlphaColor;
 
-        CircleAnimation(fadeTime);
-        ApproachAnimation(fadeTime, preemptTime);
+        // 추후 double로 수정
+        float preemptTime = (float)BeatmapUtility.GetApproachAnimationDuration(beatmapPlayer.beatmap) * 0.001f;
+        float fadeinTime = (float)BeatmapUtility.GetHitObjectFadeInDuration(beatmapPlayer.beatmap) * 0.001f;
+        CircleAnimation(fadeinTime);
+        ApproachAnimation(fadeinTime, preemptTime);
+    }
+
+    public virtual void ShakeAnimation()
+    {
+        Debug.Log("Shake!!");
+    }
+
+    public virtual void PreemptAnimation()
+    {
+
     }
 
     private void CircleAnimation(float fadeTime)
@@ -63,11 +92,15 @@ public abstract class HitObject : PoolableObject
         {
             //TODO : Sprite Change
         });
+
+        /*
         _circleAnimationSeq.Append(_spriteRenderer.DOFade(0f, fadeTime)).SetEase(Ease.Linear);
         _circleAnimationSeq.AppendCallback(() =>
         {
+            _beatmapPlayer.DequeueObject();
             PoolManager.Instance.Push(this);
         });
+        */
     }
 
     private void ApproachAnimation(float fadeTime, float preemptTime)
@@ -76,32 +109,53 @@ public abstract class HitObject : PoolableObject
         _approachAnimationSeq = DOTween.Sequence();
 
         _approachAnimationSeq.Append(_approachCircle.spriteRenderer.DOFade(1f, fadeTime)).SetEase(Ease.Linear);
-        _approachAnimationSeq.Join(_approachCircle.transform.DOScale(1f, preemptTime)).SetEase(Ease.Linear);
-        _approachAnimationSeq.AppendCallback(() =>
-        {
-            JudgementCalculate(_test.CurrentMs, _test.OD);
-            AudioPool.PopAudio(EAudioType.HitNormal);
-            PoolManager.Instance.Pop(EPoolType.JudgementPopup).transform.position = transform.position + Vector3.up * 0.15f;
-        });
+        _approachAnimationSeq.Join(_approachCircle.transform.DOScale(1f, preemptTime)).SetEase(Ease.Linear)
+            .AppendCallback(()=>
+            {
+
+                _circleAnimationSeq.Kill();
+                _approachAnimationSeq.Kill();
+                _beatmapPlayer.DequeueObject();
+                PoolManager.Instance.Push(this);
+            });
         _approachAnimationSeq.Append(_approachCircle.spriteRenderer.DOFade(0f, fadeTime)).SetEase(Ease.Linear)
             .Join(_approachCircle.transform.DOScale(1.5f, fadeTime));
     }
 
-    public EJudgement JudgementCalculate(double hitTime, int od)
+    public EJudgement JudgementCalculate(double hitTime)
     {
+        float od = _beatmapPlayer.beatmap.osuFile.difficulty.overallDifficulty;
+
         double hitError = hitTime - _hitTime;
         if (hitError < 0) hitError *= -1;
         Debug.Log($"Hit Error {hitError}");
 
         if (hitError < 80 - 6 * od)
-            return EJudgement.Great;
+            _judgement = EJudgement.Great;
         else if (hitError < 140 - 8 * od)
-            return EJudgement.Ok;
+            _judgement = EJudgement.Ok;
         else if (hitError < 200 - 10 * od)
-            return EJudgement.Meh;
+            _judgement = EJudgement.Meh;
         else if (hitError < 400)
-            return EJudgement.Miss;
+            _judgement = EJudgement.Miss;
+        else
+        {
+            _judgement = EJudgement.Miss;
+            //return _judgement;
+        }
 
-        return EJudgement.None;
+        // ? 이거 로직 왜 이럼 ㅋㅋ
+
+        _circleAnimationSeq.Kill();
+        _approachAnimationSeq.Kill();
+        JudgementPopupUtility.Popup(transform.position + Vector3.up * 0.15f, _judgement);
+        AudioPool.PopAudio(EAudioType.HitNormal);
+
+        _beatmapPlayer.DequeueObject();
+        PoolManager.Instance.Push(this);
+        Debug.Log(_judgement);
+
+        // 400보다 오차가 클 때, 덜덜 애니메이션
+        return _judgement;
     }
 }

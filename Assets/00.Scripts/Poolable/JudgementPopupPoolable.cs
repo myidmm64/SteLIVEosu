@@ -20,10 +20,14 @@ public class JudgementPopupPoolable : PoolableObject
 
     public override void PopInit()
     {
-        PopupAnimation();
     }
 
-    private void PopupAnimation()
+    public void SetSprite(Sprite sprite)
+    {
+        _spriteRenderer.sprite = sprite;
+    }
+
+    public void PopupAnimation()
     {
         if (_animationSeq != null) _animationSeq.Kill();
         transform.localScale = Vector2.one * _startSize;

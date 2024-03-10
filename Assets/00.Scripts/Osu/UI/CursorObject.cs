@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class CursorObject : MonoBehaviour
 {
-    public float collectRadius = 0.38f;
+    [SerializeField]
+    private float _collectRadius = 0.38f;
 
     private Vector3 _position = Vector3.zero;
     private Vector3 _mousePosition = Vector3.zero;
@@ -23,9 +24,14 @@ public class CursorObject : MonoBehaviour
         transform.position = _position;
     }
 
+    public bool IsCollectedObject(Vector2 hitObjectPosition)
+    {
+        return Vector2.Distance(_position, hitObjectPosition) <= _collectRadius * 2f;
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, collectRadius);
+        Gizmos.DrawWireSphere(transform.position, _collectRadius);
     }
 }
