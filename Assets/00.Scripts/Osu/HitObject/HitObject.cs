@@ -75,6 +75,7 @@ public abstract class HitObject : PoolableObject
     public virtual void ShakeAnimation()
     {
         Debug.Log("Shake!!");
+        transform.DOShakePosition(0.1f);
     }
 
     public virtual void PreemptAnimation()
@@ -113,6 +114,7 @@ public abstract class HitObject : PoolableObject
         _approachAnimationSeq.Append(_approachCircle.spriteRenderer.DOFade(0f, fadeTime)).SetEase(Ease.Linear)
             .Join(_approachCircle.transform.DOScale(1.5f, fadeTime)).AppendCallback(() =>
             {
+                transform.DOKill();
                 _circleAnimationSeq.Kill();
                 _approachAnimationSeq.Kill();
                 _circleAnimationSeq = null;
@@ -140,14 +142,17 @@ public abstract class HitObject : PoolableObject
             _judgement = EJudgement.Miss;
         else
         {
-            _judgement = EJudgement.Miss;
-            //return _judgement;
+            _judgement = EJudgement.None;
+            return _judgement;
         }
 
         // ? 이거 로직 왜 이럼 ㅋㅋ
 
+        transform.DOKill();
         _circleAnimationSeq.Kill();
         _approachAnimationSeq.Kill();
+        _circleAnimationSeq = null;
+        _approachAnimationSeq = null;
         JudgementPopupUtility.Popup(transform.position + Vector3.up * 0.15f, _judgement);
         AudioPool.PopAudio(EAudioType.HitNormal);
 
