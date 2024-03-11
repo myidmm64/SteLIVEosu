@@ -6,6 +6,9 @@ using UnityEngine;
 public class BeatmapPlayer : MonoBehaviour
 {
     [SerializeField]
+    private float _testOffset = 200;
+
+    [SerializeField]
     private CursorObject _cursor = null;
     [SerializeField]
     private OsuPlayField _playField = null;
@@ -47,22 +50,22 @@ public class BeatmapPlayer : MonoBehaviour
             _hitObjects.Peek().TestColor(Color.red);
         }
 
+        CheckInput();
+
         if (!_bgm.isPlaying) return;
         if (_currentIndex >= _hitObjectDatas.Count) return;
 
         _currentTime += Time.deltaTime;
         _currentMs = TimeSpan.FromSeconds(_currentTime).TotalMilliseconds;
-        if (_hitObjectDatas[_currentIndex].hitTime - _preemptDuration < _currentMs)
+        if (_hitObjectDatas[_currentIndex].hitTime - _preemptDuration + _testOffset < _currentMs)
         {
             HitObject hitObject = PoolManager.Instance.Pop(EPoolType.HitObject) as HitObject;
             Vector2 hitObjectPosition = _playField.OsuPixelToWorldPosition(new Vector2Int(_hitObjectDatas[_currentIndex].x, _hitObjectDatas[_currentIndex].y));
             Vector2 hitObjectScale = Vector2.one * BeatmapUtility.GetCircleRadius(_beatmap);
-            hitObject.Init(this, _hitObjectDatas[_currentIndex].hitTime, hitObjectPosition, hitObjectScale);
+            hitObject.Init(this, _hitObjectDatas[_currentIndex].hitTime + _testOffset, hitObjectPosition, hitObjectScale);
             _currentIndex++;
             _hitObjects.Enqueue(hitObject);
         }
-
-        CheckInput();
     }
 
     private void CheckInput()
