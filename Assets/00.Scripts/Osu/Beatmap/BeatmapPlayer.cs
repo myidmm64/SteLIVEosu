@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class BeatmapPlayer : MonoBehaviour
 {
@@ -50,8 +51,6 @@ public class BeatmapPlayer : MonoBehaviour
             _hitObjects.Peek().TestColor(Color.red);
         }
 
-        CheckInput();
-
         if (!_bgm.isPlaying) return;
         if (_currentIndex >= _hitObjectDatas.Count) return;
 
@@ -68,41 +67,33 @@ public class BeatmapPlayer : MonoBehaviour
         }
     }
 
-    private void CheckInput()
+    public void OnHit(InputAction.CallbackContext context)
     {
-        if (!IsInputStarted()) return;
-        foreach (var hitObject in _hitObjects)
+        if(context.started)
         {
-            // üũ
-            if (_cursor.IsCollectedObject(hitObject.transform.position))
+            foreach (var hitObject in _hitObjects)
             {
-                /*
-                if(hitObject != _hitObjects.Peek())
+                // üũ
+                if (_cursor.IsCollectedObject(hitObject.transform.position))
                 {
-                    hitObject.ShakeAnimation();
-                    return;
-                }
-                */
+                    /*
+                    if(hitObject != _hitObjects.Peek())
+                    {
+                        hitObject.ShakeAnimation();
+                        return;
+                    }
+                    */
 
-                EJudgement judgement = hitObject.JudgementCalculate(_currentMs);
-                if (judgement == EJudgement.None)
-                {
-                    hitObject.ShakeAnimation();
+                    EJudgement judgement = hitObject.JudgementCalculate(_currentMs);
+                    if (judgement == EJudgement.None)
+                    {
+                        hitObject.ShakeAnimation();
+                        return;
+                    }
                     return;
                 }
-                return;
             }
         }
-    }
-
-    private bool IsInputStarted()
-    {
-        List<KeyCode> keys = new List<KeyCode>() { KeyCode.Z, KeyCode.X, KeyCode.Mouse0, KeyCode.Mouse1 };
-        foreach (KeyCode key in keys)
-        {
-            if (Input.GetKeyDown(key)) return true;
-        }
-        return false;
     }
 
     public void DequeueObject()
