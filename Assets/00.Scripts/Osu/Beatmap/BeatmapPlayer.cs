@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class BeatmapPlayer : MonoBehaviour
+public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
 {
     [SerializeField]
     private float _testOffset = 200;
@@ -33,6 +33,15 @@ public class BeatmapPlayer : MonoBehaviour
 
     public void PlayBeatmap()
     {
+        foreach (var hitObject in _hitObjects)
+        {
+            PoolManager.Instance.Push(hitObject);
+        }
+        _hitObjects.Clear();
+        _currentTime = 0;
+        _currentMs = 0;
+        _currentIndex = 0;
+
         _bgm.Play();
         string songName = DevelopHelperObj.Instance.songSelectDropdown.options
             [DevelopHelperObj.Instance.songSelectDropdown.value].text;
@@ -54,7 +63,9 @@ public class BeatmapPlayer : MonoBehaviour
         if (!_bgm.isPlaying) return;
         if (_currentIndex >= _hitObjectDatas.Count) return;
 
+        //Debug.Log(_bgm.time);
         _currentTime += Time.deltaTime;
+        _currentTime = _bgm.time;
         _currentMs = TimeSpan.FromSeconds(_currentTime).TotalMilliseconds;
         if (_hitObjectDatas[_currentIndex].hitTime - _preemptDuration + _testOffset < _currentMs)
         {

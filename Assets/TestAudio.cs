@@ -17,6 +17,7 @@ public class TestAudio : MonoBehaviour
     private double sampleRate = 0.0F;
     private int accent;
     private bool running = false;
+    private AudioSource audioSource;
     void Start()
     {
         accent = signatureHi;
@@ -24,17 +25,27 @@ public class TestAudio : MonoBehaviour
         sampleRate = AudioSettings.outputSampleRate;
         nextTick = startTick * sampleRate;
         running = true;
+        audioSource = GetComponent<AudioSource>();
+    }
+
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.T))
+        {
+            audioSource.Play();
+        }
     }
 
     void OnAudioFilterRead(float[] data, int channels)
     {
         if (!running)
             return;
-
+        
         double samplesPerTick = sampleRate * 60.0F / bpm * 4.0F / signatureLo;
         double sample = AudioSettings.dspTime * sampleRate;
         int dataLen = data.Length / channels;
         int n = 0;
+        Debug.Log(AudioSettings.dspTime + "   " + sampleRate);
         while (n < dataLen)
         {
             float x = gain * amp * Mathf.Sin(phase);
