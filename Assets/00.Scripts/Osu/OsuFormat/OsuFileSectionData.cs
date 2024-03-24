@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using System.Numerics;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 public abstract class OsuFileSectionData
 {
@@ -40,13 +43,69 @@ public class OsuFileSectionData_Difficulty : OsuFileSectionData
 public class OsuFileSectionData_HitObjects : OsuFileSectionData
 {
 
-    public List<HitObjectData> hitObjectDatas = new List<HitObjectData>();
+    public List<SHitObjectData> hitObjectDatas = new List<SHitObjectData>();
 }
 
 [System.Serializable]
-public struct HitObjectData
+public struct SHitObjectData
 {
     public int x;
     public int y;
     public int hitTime;
+    public HitObjectType hitObjectType;
+    public HitSoundType hitSoundType;
+    public SliderType sliderType;
+    public SHitSample hitSample;
+    public List<SSliderTailData> silderTailDatas;
+}
+
+[System.Serializable]
+public struct SSliderTailData
+{
+    public List<Vector2Int> curvePoints;
+    public int slides;
+    public float length;
+    public List<int> edgeSounds;
+    public List<string> edgeSets;
+    public List<SHitSample> hitSamples;
+}
+
+[System.Serializable]
+public struct SHitSample
+{
+    public int normalSet;
+    public int additionSet;
+    public int index;
+    public int volume;
+    public string fileName;
+}
+
+[System.Serializable]
+public enum HitSoundType
+{
+    Normal,
+    Whistle,
+    Finish,
+    Clap
+}
+
+[System.Serializable]
+public enum HitObjectType
+{
+    Circle,
+    Slider,
+    NewCombo,
+    Spinner,
+    NewComboWithHexOne,
+    NewComboWithHexTwo,
+    NewComboWithHexThree,
+}
+
+[System.Serializable]
+public enum SliderType
+{
+    Basier,
+    Centripetal,
+    Line,
+    PerpectCircle,
 }

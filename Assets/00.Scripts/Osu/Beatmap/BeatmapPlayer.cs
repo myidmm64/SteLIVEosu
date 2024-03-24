@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
 {
     [SerializeField]
-    private float _testOffset = 200;
+    private float _offset = 0;
 
     [SerializeField]
     private CursorObject _cursor = null;
@@ -25,7 +25,7 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
     public double CurrentMs => _currentMs;
 
     // Create HitObject Setting
-    private List<HitObjectData> _hitObjectDatas = new List<HitObjectData>();
+    private List<SHitObjectData> _hitObjectDatas = new List<SHitObjectData>();
     private double _preemptDuration = 0;
 
     [SerializeField]
@@ -63,16 +63,14 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
         if (!_bgm.isPlaying) return;
         if (_currentIndex >= _hitObjectDatas.Count) return;
 
-        //Debug.Log(_bgm.time);
-        _currentTime += Time.deltaTime;
         _currentTime = _bgm.time;
         _currentMs = TimeSpan.FromSeconds(_currentTime).TotalMilliseconds;
-        if (_hitObjectDatas[_currentIndex].hitTime - _preemptDuration + _testOffset < _currentMs)
+        if (_hitObjectDatas[_currentIndex].hitTime - _preemptDuration + _offset < _currentMs)
         {
             HitObject hitObject = PoolManager.Instance.Pop(EPoolType.HitObject) as HitObject;
             Vector2 hitObjectPosition = _playField.OsuPixelToWorldPosition(new Vector2Int(_hitObjectDatas[_currentIndex].x, _hitObjectDatas[_currentIndex].y));
             Vector2 hitObjectScale = Vector2.one * BeatmapUtility.GetCircleRadius(_beatmap);
-            hitObject.Init(this, _hitObjectDatas[_currentIndex].hitTime + _testOffset, hitObjectPosition, hitObjectScale);
+            hitObject.Init(this, _hitObjectDatas[_currentIndex].hitTime + _offset, hitObjectPosition, hitObjectScale);
             _currentIndex++;
             _hitObjects.Enqueue(hitObject);
         }

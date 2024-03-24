@@ -144,7 +144,7 @@ public class OsuFileSection_Difficulty : OsuFileSection
 
 public class OsuFileSection_HitObjects : OsuFileSection
 {
-    private List<HitObjectData> _hitObjectDatas = new List<HitObjectData>();
+    private List<SHitObjectData> _hitObjectDatas = new List<SHitObjectData>();
 
     public OsuFileSection_HitObjects(OsuFileSectionData sectionData, string beatmapDirectory) : base(sectionData, beatmapDirectory)
     {
@@ -152,13 +152,45 @@ public class OsuFileSection_HitObjects : OsuFileSection
 
     public override void Read(string line)
     {
-        HitObjectData hitObjectData;
-        string[] splitData = line.Split(",");
-        hitObjectData.x = int.Parse(splitData[0]);
-        hitObjectData.y = int.Parse(splitData[1]);
-        hitObjectData.hitTime = int.Parse(splitData[2]);
+        SHitObjectData hitObjectData = new SHitObjectData();
+        string[] rows = line.Split('|');
+        string baseRow = rows[0];
+        string[] baseRowColumns = baseRow.Split(',');
+        hitObjectData.x = int.Parse(baseRowColumns[0]);
+        hitObjectData.y = int.Parse(baseRowColumns[1]);
+        hitObjectData.hitTime = int.Parse(baseRowColumns[2]);
+        hitObjectData.hitObjectType = (HitObjectType)int.Parse(baseRowColumns[3]);
+        hitObjectData.hitSoundType = (HitSoundType)int.Parse(baseRowColumns[4]);
+        /*
+        string lastColumn = baseRowColumns[baseRowColumns.Length - 1];
+        char lastChar = lastColumn[lastColumn.Length - 1];
+        if (!char.IsDigit(lastChar)) // Is Slider
+        {
+            hitObjectData.sliderType = GetSliderTypeWithChar(lastChar);
+            List<SSliderTailData> silderTailDatas = new List<SSliderTailData>();
+            SSliderTailData sliderTailData = new SSliderTailData();
+            for(int i = 1;  i < rows.Length; i++)
+            {
+                string[] currentColumns = rows[i].Split(',');
+                if(currentColumns.Length == 1) // CurvePoint
+                {
+
+                    continue;
+                }
+            }
+        }
+        */
         _hitObjectDatas.Add(hitObjectData);
     }
+
+    public SliderType GetSliderTypeWithChar(char sliderTypeChar) => sliderTypeChar switch
+    {
+        'B' => SliderType.Basier,
+        'C' => SliderType.Centripetal,
+        'L' => SliderType.Line,
+        'P' => SliderType.PerpectCircle,
+        _ => throw new System.NotImplementedException(),
+    };
 
     public override void SetProperties()
     {

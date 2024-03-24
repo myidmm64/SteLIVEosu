@@ -26,7 +26,8 @@ public class CursorObject : MonoBehaviour
 
     public bool IsCollectedObject(Vector2 hitObjectPosition)
     {
-        return Vector2.Distance(_position, hitObjectPosition) <= _collectRadius * 2f;
+        Vector2 currentMousePosition = Utility.Cam.ScreenToWorldPoint(Input.mousePosition);
+        return Vector2.Distance(currentMousePosition, hitObjectPosition) <= _collectRadius * 2f;
     }
 
     private void OnDrawGizmos()
