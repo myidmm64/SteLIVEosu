@@ -8,11 +8,14 @@ using UnityEngine.InputSystem;
 
 using OsuParsers.Beatmaps;
 using OsuParsers.Decoders;
+using OsuParsers.Beatmaps.Objects;
 
 public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
 {
     [SerializeField]
     private float _offset = 0;
+
+    private Beatmap _currentBeatmap = null;
 
     [SerializeField]
     private CursorObject _cursor = null;
@@ -42,9 +45,20 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
             [DevelopHelperObj.Instance.songSelectDropdown.value].text;
         string _beatmapDirectory = Path.GetFullPath(Path.Combine(Utility.SongDirectory, sn));
         string osuFilePath = Path.GetFullPath(Path.Combine(_beatmapDirectory, $"{sn}.osu"));
-        OsuParsers.Beatmaps.Beatmap beatmap = BeatmapDecoder.Decode(osuFilePath);
-        //printing beatmap's title
-        Debug.Log(beatmap.MetadataSection.TitleUnicode);
+        _currentBeatmap = BeatmapDecoder.Decode(osuFilePath);
+
+        foreach (var hitObject in _currentBeatmap.HitObjects)
+        {
+            if(hitObject is Slider)
+            {
+                Slider slider = (Slider)hitObject;
+                Debug.Log(slider.SliderPoints);
+            }
+            else if (hitObject is OsuParsers.Beatmaps.Objects.HitCircle)
+            {
+                Debug.Log(hitObject.StartTime + " " + hitObject.EndTime + " " + hitObject.Position);
+            }
+        }
         return;
 
         /*
@@ -98,7 +112,7 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
 
     public void OnHit(InputAction.CallbackContext context)
     {
-        if(context.started)
+        if (context.started)
         {
             foreach (var hitObject in _hitObjects)
             {
