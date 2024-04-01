@@ -66,8 +66,8 @@ public abstract class HitObject : PoolableObject
         _approachCircle.spriteRenderer.color = noAlphaColor;
 
         // 추후 double로 수정
-        float preemptTime = (float)BeatmapUtility.GetApproachAnimationDuration(beatmapPlayer.beatmap) * 0.001f;
-        float fadeinTime = (float)BeatmapUtility.GetHitObjectFadeInDuration(beatmapPlayer.beatmap) * 0.001f;
+        float preemptTime = 0f;//(float)BeatmapUtility.GetApproachAnimationDuration(beatmapPlayer.beatmap) * 0.001f;
+        float fadeinTime = 0f;//(float)BeatmapUtility.GetHitObjectFadeInDuration(beatmapPlayer.beatmap) * 0.001f;
         CircleAnimation(fadeinTime);
         ApproachAnimation(fadeinTime, preemptTime);
     }
@@ -126,7 +126,7 @@ public abstract class HitObject : PoolableObject
 
     public EJudgement JudgementCalculate(double hitTime)
     {
-        float od = _beatmapPlayer.beatmap.osuFile.difficulty.overallDifficulty;
+        float od = 0f;//_beatmapPlayer.beatmap.osuFile.difficulty.overallDifficulty;
 
         double hitError = hitTime - _hitTime;
         if (hitError < 0) hitError *= -1;

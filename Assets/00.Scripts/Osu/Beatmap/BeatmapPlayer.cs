@@ -1,8 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.InputSystem;
+
+using OsuParsers.Beatmaps;
+using OsuParsers.Decoders;
 
 public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
 {
@@ -25,7 +30,7 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
     public double CurrentMs => _currentMs;
 
     // Create HitObject Setting
-    private List<SHitObjectData> _hitObjectDatas = new List<SHitObjectData>();
+    //private List<SHitObjectData> _hitObjectDatas = new List<SHitObjectData>();
     private double _preemptDuration = 0;
 
     [SerializeField]
@@ -33,6 +38,17 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
 
     public void PlayBeatmap()
     {
+        string sn = DevelopHelperObj.Instance.songSelectDropdown.options
+            [DevelopHelperObj.Instance.songSelectDropdown.value].text;
+        string _beatmapDirectory = Path.GetFullPath(Path.Combine(Utility.SongDirectory, sn));
+        string osuFilePath = Path.GetFullPath(Path.Combine(_beatmapDirectory, $"{sn}.osu"));
+        OsuParsers.Beatmaps.Beatmap beatmap = BeatmapDecoder.Decode(osuFilePath);
+        //printing beatmap's title
+        Debug.Log(beatmap.MetadataSection.TitleUnicode);
+        return;
+
+        /*
+
         foreach (var hitObject in _hitObjects)
         {
             PoolManager.Instance.Push(hitObject);
@@ -51,10 +67,13 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
         _hitObjectDatas = _beatmap.osuFile.hitObject.hitObjectDatas;
 
         _preemptDuration = BeatmapUtility.GetApproachAnimationDuration(_beatmap);
+
+        */
     }
 
     private void Update()
     {
+        /*
         if(_hitObjects.Count > 0)
         {
             _hitObjects.Peek().TestColor(Color.red);
@@ -74,6 +93,7 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
             _currentIndex++;
             _hitObjects.Enqueue(hitObject);
         }
+        */
     }
 
     public void OnHit(InputAction.CallbackContext context)

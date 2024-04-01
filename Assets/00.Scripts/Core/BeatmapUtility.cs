@@ -4,6 +4,7 @@ using UnityEngine;
 
 public static class BeatmapUtility
 {
+    /*
     public static float GetCircleRadius(Beatmap beatmap)
     {
         return 1f - 0.082f * beatmap.osuFile.difficulty.circleSize;
@@ -32,4 +33,5 @@ public static class BeatmapUtility
             return 800 - 500 * (ar - 5) / 5;
         return 0;
     }
+    */
 }
