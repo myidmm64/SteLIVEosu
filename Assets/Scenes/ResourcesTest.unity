@@ -1158,7 +1158,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5549cac055a2464d982499154a12da7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _poolDataSO: {fileID: 11400000, guid: ff813deee63831b4fa7b90c35e49137f, type: 2}
 --- !u!1 &576500564
 GameObject:
   m_ObjectHideFlags: 0
@@ -2929,6 +2928,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd4e427794ae55540bad17d30306dcd2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _collectRadius: 0.38
 --- !u!1 &1516569618
 GameObject:
   m_ObjectHideFlags: 0
