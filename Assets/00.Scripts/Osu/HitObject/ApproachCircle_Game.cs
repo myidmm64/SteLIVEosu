@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ApproachCircle : MonoBehaviour
+public class ApproachCircle_Game : MonoBehaviour
 {
     private SpriteRenderer _spriteRenderer = null;
     public SpriteRenderer spriteRenderer

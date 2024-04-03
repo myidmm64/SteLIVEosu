@@ -37,7 +37,7 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
     private double _preemptDuration = 0;
 
     [SerializeField]
-    private Queue<HitObject> _hitObjects = new Queue<HitObject>();
+    private Queue<HitObject_Game> _hitObjects = new Queue<HitObject_Game>();
 
     public void PlayBeatmap()
     {

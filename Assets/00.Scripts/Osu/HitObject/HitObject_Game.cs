@@ -13,14 +13,14 @@ public enum EJudgement
     Miss    //miss
 }
 
-public abstract class HitObject : PoolableObject
+public abstract class HitObject_Game : PoolableObject
 {
     private BeatmapPlayer _beatmapPlayer = null;
     private Vector2 _pos = Vector2.zero;
     public Vector2 Pos => _pos;
     protected EJudgement _judgement = EJudgement.None;
 
-    private ApproachCircle _approachCircle = null;
+    private ApproachCircle_Game _approachCircle = null;
     private SpriteRenderer _spriteRenderer = null;
     private double _hitTime = 0;
 
@@ -46,7 +46,7 @@ public abstract class HitObject : PoolableObject
 
     public override void StartInit()
     {
-        _approachCircle = transform.Find("ApproachCircle").GetComponent<ApproachCircle>();
+        _approachCircle = transform.Find("ApproachCircle").GetComponent<ApproachCircle_Game>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
