@@ -9,22 +9,18 @@ using UnityEngine.InputSystem;
 using OsuParsers.Beatmaps;
 using OsuParsers.Decoders;
 using OsuParsers.Beatmaps.Objects;
+using OsuParsers.Database.Objects;
 
 public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
 {
     [SerializeField]
     private float _offset = 0;
-
     private Beatmap _currentBeatmap = null;
 
     [SerializeField]
-    private CursorObject _cursor = null;
-    [SerializeField]
-    private OsuPlayField _playField = null;
+    private Player _player = null;
     [SerializeField]
     private AudioSource _bgm = null;
-    private Beatmap _beatmap = null;
-    public Beatmap beatmap => _beatmap;
 
     // Timer
     private int _currentIndex = 0;
@@ -32,117 +28,104 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
     private double _currentMs = 0;
     public double CurrentMs => _currentMs;
 
-    // Create HitObject Setting
-    //private List<SHitObjectData> _hitObjectDatas = new List<SHitObjectData>();
-    private double _preemptDuration = 0;
-
+    private HitObject _currentHitObjData = null;
     [SerializeField]
-    private Queue<HitObject> _hitObjects = new Queue<HitObject>();
+    private Queue<HitObject_Game> _hitObjects = new Queue<HitObject_Game>();
 
-    public void PlayBeatmap()
+    private bool _isPlaying = false;
+
+    public void PlayBeatmap(SelectOsuFileData selectedFileData)
     {
-        string sn = DevelopHelperObj.Instance.songSelectDropdown.options
-            [DevelopHelperObj.Instance.songSelectDropdown.value].text;
-        string _beatmapDirectory = Path.GetFullPath(Path.Combine(Utility.SongDirectory, sn));
-        string osuFilePath = Path.GetFullPath(Path.Combine(_beatmapDirectory, $"{sn}.osu"));
-        _currentBeatmap = BeatmapDecoder.Decode(osuFilePath);
+        _currentBeatmap = selectedFileData.beatmap;
 
-        foreach (var hitObject in _currentBeatmap.HitObjects)
-        {
-            if(hitObject is Slider)
-            {
-                Slider slider = (Slider)hitObject;
-                Debug.Log(slider.SliderPoints);
-            }
-            else if (hitObject is OsuParsers.Beatmaps.Objects.HitCircle)
-            {
-                Debug.Log(hitObject.StartTime + " " + hitObject.EndTime + " " + hitObject.Position);
-            }
-        }
-        return;
-
-        /*
-
-        foreach (var hitObject in _hitObjects)
-        {
-            PoolManager.Instance.Push(hitObject);
-        }
-        _hitObjects.Clear();
+        _currentIndex = 0;
         _currentTime = 0;
         _currentMs = 0;
-        _currentIndex = 0;
 
-        _bgm.Play();
-        string songName = DevelopHelperObj.Instance.songSelectDropdown.options
-            [DevelopHelperObj.Instance.songSelectDropdown.value].text;
-        _beatmap = new Beatmap(songName);
-        _beatmap.LoadOsuFile();
+        _bgm.Stop();
+        _bgm.clip = SongUtility.LoadBGM(selectedFileData);
+        double leadinSec = _currentBeatmap.GeneralSection.AudioLeadIn * 0.001f;
+        double scheduledTime = AudioSettings.dspTime + leadinSec;
+        _bgm.PlayScheduled(scheduledTime);
 
-        _hitObjectDatas = _beatmap.osuFile.hitObject.hitObjectDatas;
+        _currentHitObjData = _currentBeatmap.HitObjects[0];
 
-        _preemptDuration = BeatmapUtility.GetApproachAnimationDuration(_beatmap);
+        _isPlaying = true;
+    }
 
-        */
+    public void CleanHitObjectQueue()
+    {
+        if (_hitObjects.Count == 0) return;
+        while (true)
+        {
+            if (_hitObjects.Count == 0) break;
+            HitObject_Game hitObject = _hitObjects.Peek();
+            if (hitObject == null) break;
+            if (hitObject.IsDisable() == false)
+                break;
+            _hitObjects.Dequeue();
+            PoolManager.Instance.Push(hitObject);
+        }
     }
 
     private void Update()
     {
-        /*
-        if(_hitObjects.Count > 0)
-        {
-            _hitObjects.Peek().TestColor(Color.red);
-        }
-
-        if (!_bgm.isPlaying) return;
-        if (_currentIndex >= _hitObjectDatas.Count) return;
-
-        _currentTime = _bgm.time;
-        _currentMs = TimeSpan.FromSeconds(_currentTime).TotalMilliseconds;
-        if (_hitObjectDatas[_currentIndex].hitTime - _preemptDuration + _offset < _currentMs)
-        {
-            HitObject hitObject = PoolManager.Instance.Pop(EPoolType.HitObject) as HitObject;
-            Vector2 hitObjectPosition = _playField.OsuPixelToWorldPosition(new Vector2Int(_hitObjectDatas[_currentIndex].x, _hitObjectDatas[_currentIndex].y));
-            Vector2 hitObjectScale = Vector2.one * BeatmapUtility.GetCircleRadius(_beatmap);
-            hitObject.Init(this, _hitObjectDatas[_currentIndex].hitTime + _offset, hitObjectPosition, hitObjectScale);
-            _currentIndex++;
-            _hitObjects.Enqueue(hitObject);
-        }
-        */
+        ReadBeatmap();
     }
 
-    public void OnHit(InputAction.CallbackContext context)
+    private void ReadBeatmap()
     {
-        if (context.started)
-        {
-            foreach (var hitObject in _hitObjects)
-            {
-                // üũ
-                if (_cursor.IsCollectedObject(hitObject.transform.position))
-                {
-                    /*
-                    if(hitObject != _hitObjects.Peek())
-                    {
-                        hitObject.ShakeAnimation();
-                        return;
-                    }
-                    */
+        CleanHitObjectQueue();
+        _currentTime += Time.deltaTime;
+        _currentMs = TimeSpan.FromSeconds(_currentTime).TotalMilliseconds;
 
-                    EJudgement judgement = hitObject.JudgementCalculate(_currentMs);
-                    if (judgement == EJudgement.None)
-                    {
-                        hitObject.ShakeAnimation();
-                        return;
-                    }
-                    return;
-                }
+        if (_isPlaying == false) return;
+
+        if (_currentHitObjData.StartTime - _currentBeatmap.GetAnimationPreemptDuration() + _offset < _currentMs)
+        {
+            Debug.Log($"isNewCombo : {_currentHitObjData.IsNewCombo} , ComboOffset : {_currentHitObjData.ComboOffset}");
+            // Create
+            HitObject_Game hitObject = PoolManager.Instance.Pop(EPoolType.HitObject) as HitObject_Game;
+            hitObject.Init(_currentHitObjData, _currentBeatmap, _currentMs, _offset);
+            _hitObjects.Enqueue(hitObject);
+
+            _currentIndex++;
+            if (_currentIndex < _currentBeatmap.HitObjects.Count)
+            {
+                _currentHitObjData = _currentBeatmap.HitObjects[_currentIndex];
+            }
+            else
+            {
+                _isPlaying = false;
             }
         }
     }
 
-    public void DequeueObject()
+    public void Collect()
     {
         if (_hitObjects.Count == 0) return;
-        _hitObjects.Dequeue();
+
+        CleanHitObjectQueue();
+
+        foreach (var hitObject in _hitObjects)
+        {
+            if (_player.cursorObject.IsCollectedObject(hitObject.transform.position))
+            {
+                if (hitObject != _hitObjects.Peek())
+                {
+                    hitObject.ShakeAnimation();
+                    return;
+                }
+
+                EJudgement judgement = hitObject.CollectObject(_currentMs);
+                if (judgement == EJudgement.None)
+                {
+                    hitObject.ShakeAnimation();
+                    return;
+                }
+                return;
+            }
+        }
     }
 
     /// <summary>
@@ -152,11 +135,11 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
     {
         foreach (var hitObject in _hitObjects)
         {
-            if (_cursor.IsCollectedObject(hitObject.transform.position))
+            if (_player.cursorObject.IsCollectedObject(hitObject.transform.position))
                 Gizmos.color = Color.red;
             else
                 Gizmos.color = Color.green;
-            Gizmos.DrawLine(_cursor.transform.position, hitObject.transform.position);
+            Gizmos.DrawLine(_player.cursorObject.transform.position, hitObject.transform.position);
         }
     }
 }

@@ -4,4 +4,5 @@ public enum EPoolType
     Audio,
     HitObject,
     JudgementPopup,
+    Slider
 }
