@@ -44,6 +44,9 @@ TagManager:
   - name: CameraUI
     uniqueID: 4182688193
     locked: 0
+  - name: InGame_HitObject
+    uniqueID: 2494506447
+    locked: 0
   - name: InGame
     uniqueID: 781230019
     locked: 0

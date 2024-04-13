@@ -7,6 +7,10 @@ using UnityEngine;
 
 public class HitCircle_Game : HitObject_Game
 {
+    [SerializeField]
+    private float _startApproachCircleSize = 5f;
+    [SerializeField]
+    private float _endApproachCircleSize = 1.06f;
     private float _preemptTime = 0f;
     private float _fadeinTime = 0f;
     private Sequence _fadeSeq = null;
@@ -40,7 +44,7 @@ public class HitCircle_Game : HitObject_Game
 
         FadeAnimation(_fadeinTime);
         _approachCircle.FadeAnimation(_fadeinTime);
-        _approachCircle.SizingAnimation(Vector3.one * 5f, Vector3.one * 1f, _preemptTime);
+        _approachCircle.SizingAnimation(Vector3.one * _startApproachCircleSize, Vector3.one * _endApproachCircleSize, _preemptTime);
     }
 
     private void KillAnimation()
@@ -65,7 +69,6 @@ public class HitCircle_Game : HitObject_Game
         Debug.Log($"hit Error {GetHitError(hitTime)}");
 
         _isDisable = true;
-        Debug.Log(judgement);
     }
 
     public override void SetHitTime()

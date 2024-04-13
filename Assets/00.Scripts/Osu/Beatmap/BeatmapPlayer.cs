@@ -34,11 +34,8 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
 
     private bool _isPlaying = false;
 
-    public void PlayBeatmap()
+    public void PlayBeatmap(SelectOsuFileData selectedFileData)
     {
-        string osuFileKey = DevelopHelperObj.Instance.songSelectDropdown.options
-            [DevelopHelperObj.Instance.songSelectDropdown.value].text;
-        SelectOsuFileData selectedFileData = DevelopHelperObj.Instance._developTestSelectOsuFileMap[osuFileKey];
         _currentBeatmap = selectedFileData.beatmap;
 
         _currentIndex = 0;
@@ -86,6 +83,7 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
 
         if (_currentHitObjData.StartTime - _currentBeatmap.GetAnimationPreemptDuration() + _offset < _currentMs)
         {
+            Debug.Log($"isNewCombo : {_currentHitObjData.IsNewCombo} , ComboOffset : {_currentHitObjData.ComboOffset}");
             // Create
             HitObject_Game hitObject = PoolManager.Instance.Pop(EPoolType.HitObject) as HitObject_Game;
             hitObject.Init(_currentHitObjData, _currentBeatmap, _currentMs, _offset);

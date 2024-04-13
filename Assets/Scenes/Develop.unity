@@ -171,7 +171,7 @@ Animator:
   m_GameObject: {fileID: 36316929}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 22100000, guid: 50e0e637eee98a94eb0910f7c7f93149, type: 2}
+  m_Controller: {fileID: 22100000, guid: d96724dfd39eb884b8debf855d098fef, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -220,6 +220,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 36316929}
   m_CullTransparentMesh: 1
+--- !u!1 &108492662
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 108492663}
+  - component: {fileID: 108492664}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &108492663
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 108492662}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 368464154}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &108492664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 108492662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8c27a2a8e0071740ae3884abd2c5d2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _beatmapPlayer: {fileID: 2051262561}
 --- !u!1 &137803670
 GameObject:
   m_ObjectHideFlags: 0
@@ -840,6 +885,7 @@ Transform:
   - {fileID: 563932606}
   - {fileID: 1448576894}
   - {fileID: 2051262560}
+  - {fileID: 108492663}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &393709189 stripped
@@ -1384,7 +1430,7 @@ MonoBehaviour:
   m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeIntensityEnabled: 0
-  m_ApplyToSortingLayers: 00000000c39f902ec1c14ef9
+  m_ApplyToSortingLayers: 00000000c39f902ec1c14ef9cf25af94
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -2135,9 +2181,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2051262561}
-        m_TargetAssemblyTypeName: BeatmapPlayer, Assembly-CSharp
-        m_MethodName: PlayBeatmap
+      - m_Target: {fileID: 108492664}
+        m_TargetAssemblyTypeName: OsuGameManager, Assembly-CSharp
+        m_MethodName: StartGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2305,7 +2351,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 781230019
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 10
   m_Sprite: {fileID: 21300000, guid: 5d4ca15615179ca43b24acf993f65b33, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -3817,7 +3863,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5e2ea8b24e0f104f8850c69d26a4dd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _offset: 200
+  _offset: 0
   _player: {fileID: 1370419358}
   _bgm: {fileID: 1014817457}
 --- !u!1 &2059955876
