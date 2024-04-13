@@ -130,12 +130,6 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
         }
     }
 
-    public void DequeueObject()
-    {
-        if (_hitObjects.Count == 0) return;
-        _hitObjects.Dequeue();
-    }
-
     /// <summary>
     /// 현재 맵에 있는 모든 HitObject와의 거리를 Draw
     /// </summary>

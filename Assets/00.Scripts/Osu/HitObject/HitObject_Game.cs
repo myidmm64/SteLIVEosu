@@ -51,21 +51,12 @@ public abstract class HitObject_Game : PoolableObject
 
     protected ApproachCircle_Game _approachCircle = null;
 
-    public void TestColor(Color targetColor)
-    {
-        Color myColor = _spriteRenderer.color;
-        targetColor.a = myColor.a;
-        _spriteRenderer.color = targetColor;
-    }
-
     public override void PopInit()
     {
     }
 
     public override void PushInit()
     {
-        //_spriteRenderer.DOKill();
-        //TestColor(Color.white);
         _isDisable = false;
     }
 
