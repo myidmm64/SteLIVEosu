@@ -41,11 +41,13 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
 
     public void PlayBeatmap()
     {
-        string sn = DevelopHelperObj.Instance.songSelectDropdown.options
+        string osuFileKey = DevelopHelperObj.Instance.songSelectDropdown.options
             [DevelopHelperObj.Instance.songSelectDropdown.value].text;
-        string _beatmapDirectory = Path.GetFullPath(Path.Combine(SongUtility.ExtenalSongDirectory, sn));
-        string osuFilePath = Path.GetFullPath(Path.Combine(_beatmapDirectory, $"{sn}.osu"));
-        _currentBeatmap = BeatmapDecoder.Decode(osuFilePath);
+        SelectOsuFileData selectedFileData = DevelopHelperObj.Instance._developTestSelectOsuFileMap[osuFileKey];
+        _currentBeatmap = selectedFileData.beatmap;
+
+        _bgm.clip = SongUtility.LoadBGM(selectedFileData);
+        _bgm.Play();
 
         foreach (var hitObject in _currentBeatmap.HitObjects)
         {

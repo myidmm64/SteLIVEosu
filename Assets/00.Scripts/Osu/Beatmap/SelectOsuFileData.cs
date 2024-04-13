@@ -15,25 +15,23 @@ using OsuParsers.Decoders;
 /// </summary>
 public class SelectOsuFileData
 {
-    private readonly string _osuFilePath;
-    private Beatmap _beatmap = null;
+    public readonly string osuFilePath;
+    public readonly Beatmap beatmap = null;
 
-    public string Title => _beatmap.MetadataSection.Title;
-    public string Artist => _beatmap.MetadataSection.Artist;
-    public string Creator => _beatmap.MetadataSection.Creator;
-    public string Version => _beatmap.MetadataSection.Version;
+    public string Title => beatmap.MetadataSection.Title;
+    public string Artist => beatmap.MetadataSection.Artist;
+    public string Creator => beatmap.MetadataSection.Creator;
+    public string Version => beatmap.MetadataSection.Version;
 
-    public string DirectoryName => Path.GetDirectoryName(_osuFilePath);
+    public string AudioFileName => beatmap.GeneralSection.AudioFilename;
+
+    public string OsuDirectoryPath => Path.GetDirectoryName(osuFilePath);
+    public string OsuDirectoryName => Path.GetFileName(OsuDirectoryPath);
 
     public SelectOsuFileData(string osuFilePath)
     {
-        _osuFilePath = osuFilePath;
-        OsuFileLoad();
-    }
-
-    private void OsuFileLoad()
-    {
-        _beatmap = BeatmapDecoder.Decode(_osuFilePath);
+        this.osuFilePath = osuFilePath;
+        beatmap = BeatmapDecoder.Decode(osuFilePath);
     }
 }
 
