@@ -9,22 +9,18 @@ using UnityEngine.InputSystem;
 using OsuParsers.Beatmaps;
 using OsuParsers.Decoders;
 using OsuParsers.Beatmaps.Objects;
+using OsuParsers.Database.Objects;
 
 public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
 {
     [SerializeField]
     private float _offset = 0;
-
     private Beatmap _currentBeatmap = null;
 
     [SerializeField]
     private CursorObject _cursor = null;
     [SerializeField]
-    private OsuPlayField _playField = null;
-    [SerializeField]
     private AudioSource _bgm = null;
-    private Beatmap _beatmap = null;
-    public Beatmap beatmap => _beatmap;
 
     // Timer
     private int _currentIndex = 0;
@@ -33,11 +29,17 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
     public double CurrentMs => _currentMs;
 
     // Create HitObject Setting
-    //private List<SHitObjectData> _hitObjectDatas = new List<SHitObjectData>();
-    private double _preemptDuration = 0;
+    private const int _createOffset = 50;
 
+    private double _preemptDuration = 0;
+    private double _fadeinDuration = 0;
+    private float _circleRadius = 0f;
+
+    private HitObject _currentHitObjData = null;
     [SerializeField]
     private Queue<HitObject_Game> _hitObjects = new Queue<HitObject_Game>();
+
+    private bool _isPlaying = false;
 
     public void PlayBeatmap()
     {
@@ -46,12 +48,54 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
         SelectOsuFileData selectedFileData = DevelopHelperObj.Instance._developTestSelectOsuFileMap[osuFileKey];
         _currentBeatmap = selectedFileData.beatmap;
 
-        _bgm.clip = SongUtility.LoadBGM(selectedFileData);
-        _bgm.Play();
+        _preemptDuration = BeatmapUtility.GetApproachAnimationDuration(_currentBeatmap);
+        _fadeinDuration = BeatmapUtility.GetHitObjectFadeInDuration(_currentBeatmap);
+        _circleRadius = BeatmapUtility.GetCircleRadius(_currentBeatmap);
 
+        _currentIndex = 0;
+        _currentTime = 0;
+        _currentMs = 0;
+
+        _bgm.Stop();
+        _bgm.clip = SongUtility.LoadBGM(selectedFileData);
+        double leadinSec = _currentBeatmap.GeneralSection.AudioLeadIn * 0.001f;
+        double scheduledTime = AudioSettings.dspTime + leadinSec;
+        _bgm.PlayScheduled(scheduledTime);
+
+        _currentHitObjData = _currentBeatmap.HitObjects[0];
+
+        _isPlaying = true;
+    }
+
+    public void CleanHitObjectQueue()
+    {
+
+    }
+
+    private void Update()
+    {
+        if (_isPlaying == false) return;
+
+        _currentTime += Time.deltaTime;
+        _currentMs = TimeSpan.FromSeconds(_currentTime).TotalMilliseconds;
+
+        if (_currentHitObjData.StartTime - _preemptDuration - _createOffset + _offset < _currentMs)
+        {
+            // Create
+            HitObject_Game hitObject = PoolManager.Instance.Pop(EPoolType.HitObject) as HitObject_Game;
+            Vector2 hitObjectPosition = OsuPlayField.Instance.OsuPixelToWorldPosition(new Vector2(_currentHitObjData.Position.X, _currentHitObjData.Position.Y));
+            Vector3 circleSize = Vector2.one * _circleRadius;
+            hitObject.Init(_currentHitObjData, this, hitObjectPosition, circleSize, _preemptDuration, _fadeinDuration);
+            _hitObjects.Enqueue(hitObject);
+
+            _currentIndex++;
+            _currentHitObjData = _currentBeatmap.HitObjects[_currentIndex];
+        }
+
+        /*
         foreach (var hitObject in _currentBeatmap.HitObjects)
         {
-            if(hitObject is Slider)
+            if (hitObject is Slider)
             {
                 Slider slider = (Slider)hitObject;
                 Debug.Log(slider.SliderPoints);
@@ -62,33 +106,7 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
             }
         }
         return;
-
-        /*
-
-        foreach (var hitObject in _hitObjects)
-        {
-            PoolManager.Instance.Push(hitObject);
-        }
-        _hitObjects.Clear();
-        _currentTime = 0;
-        _currentMs = 0;
-        _currentIndex = 0;
-
-        _bgm.Play();
-        string songName = DevelopHelperObj.Instance.songSelectDropdown.options
-            [DevelopHelperObj.Instance.songSelectDropdown.value].text;
-        _beatmap = new Beatmap(songName);
-        _beatmap.LoadOsuFile();
-
-        _hitObjectDatas = _beatmap.osuFile.hitObject.hitObjectDatas;
-
-        _preemptDuration = BeatmapUtility.GetApproachAnimationDuration(_beatmap);
-
         */
-    }
-
-    private void Update()
-    {
         /*
         if(_hitObjects.Count > 0)
         {

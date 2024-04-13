@@ -1,4 +1,5 @@
 using DG.Tweening;
+using OsuParsers.Beatmaps.Objects;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,17 +16,38 @@ public enum EJudgement
 
 public abstract class HitObject_Game : PoolableObject
 {
+    private SpriteRenderer _spriteRenderer = null;
+    protected SpriteRenderer spriteRenderer
+    {
+        get
+        {
+            if (_spriteRenderer == null)
+            {
+                _spriteRenderer = GetComponent<SpriteRenderer>();
+            }
+            return _spriteRenderer;
+        }
+    }
+    protected Color noAlphaColor
+    {
+        get
+        {
+            Color color = spriteRenderer.color;
+            color.a = 0f;
+            return color;
+        }
+    }
+
+    private HitObject _hitObjectData = null;
     private BeatmapPlayer _beatmapPlayer = null;
-    private Vector2 _pos = Vector2.zero;
-    public Vector2 Pos => _pos;
+    private Vector2 _position = Vector2.zero;
+    public Vector2 Position => _position;
+
     protected EJudgement _judgement = EJudgement.None;
 
-    private ApproachCircle_Game _approachCircle = null;
-    private SpriteRenderer _spriteRenderer = null;
     private double _hitTime = 0;
 
-    private Sequence _circleAnimationSeq = null;
-    private Sequence _approachAnimationSeq = null;
+    protected ApproachCircle_Game _approachCircle = null;
 
     public void TestColor(Color targetColor)
     {
@@ -50,78 +72,25 @@ public abstract class HitObject_Game : PoolableObject
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    public virtual void Init(BeatmapPlayer beatmapPlayer, double hitTime, Vector2 pos, Vector2 circleSize)
+    public virtual void Init(HitObject hitObjectData, BeatmapPlayer beatmapPlayer, Vector2 pos, Vector2 circleSize, double preemptDuration, double fadeinDuration)
     {
+        _hitObjectData = hitObjectData;
         _beatmapPlayer = beatmapPlayer;
-        _hitTime = hitTime;
-        _pos = pos;
+        _position = pos;
 
-        transform.position = _pos;
+        transform.position = _position;
         transform.localScale = circleSize;
+    }
 
-        Color noAlphaColor = Color.white;
-        noAlphaColor.a = 0f;
-        _spriteRenderer.color = noAlphaColor;
-        _approachCircle.transform.localScale = Vector3.one * 5f;
-        _approachCircle.spriteRenderer.color = noAlphaColor;
+    public virtual void AnimationStart()
+    {
 
-        // 추후 double로 수정
-        float preemptTime = 0f;//(float)BeatmapUtility.GetApproachAnimationDuration(beatmapPlayer.beatmap) * 0.001f;
-        float fadeinTime = 0f;//(float)BeatmapUtility.GetHitObjectFadeInDuration(beatmapPlayer.beatmap) * 0.001f;
-        CircleAnimation(fadeinTime);
-        ApproachAnimation(fadeinTime, preemptTime);
     }
 
     public virtual void ShakeAnimation()
     {
         Debug.Log("Shake!!");
-        transform.DOShakePosition(0.1f);
-    }
-
-    public virtual void PreemptAnimation()
-    {
-
-    }
-
-    private void CircleAnimation(float fadeTime)
-    {
-        if (_circleAnimationSeq != null) _circleAnimationSeq.Kill();
-        _circleAnimationSeq = DOTween.Sequence();
-
-        _circleAnimationSeq.Append(_spriteRenderer.DOFade(1f, fadeTime)).SetEase(Ease.Linear);
-        _circleAnimationSeq.AppendCallback(() =>
-        {
-            //TODO : Sprite Change
-        });
-
-        _circleAnimationSeq.Append(_spriteRenderer.DOFade(0f, fadeTime)).SetEase(Ease.Linear);
-        _circleAnimationSeq.AppendCallback(() =>
-        {
-            /*
-            _beatmapPlayer.DequeueObject();
-            PoolManager.Instance.Push(this);
-            */
-        });
-    }
-
-    private void ApproachAnimation(float fadeTime, float preemptTime)
-    {
-        if (_approachAnimationSeq != null) _approachAnimationSeq.Kill();
-        _approachAnimationSeq = DOTween.Sequence();
-
-        _approachAnimationSeq.Append(_approachCircle.spriteRenderer.DOFade(1f, fadeTime)).SetEase(Ease.Linear);
-        _approachAnimationSeq.Join(_approachCircle.transform.DOScale(1f, preemptTime)).SetEase(Ease.Linear);
-        _approachAnimationSeq.Append(_approachCircle.spriteRenderer.DOFade(0f, fadeTime)).SetEase(Ease.Linear)
-            .Join(_approachCircle.transform.DOScale(1.5f, fadeTime)).AppendCallback(() =>
-            {
-                transform.DOKill();
-                _circleAnimationSeq.Kill();
-                _approachAnimationSeq.Kill();
-                _circleAnimationSeq = null;
-                _approachAnimationSeq = null;
-                _beatmapPlayer.DequeueObject();
-                PoolManager.Instance.Push(this);
-            }); ;
+        // transform.DOShakePosition(0.1f);
     }
 
     public EJudgement JudgementCalculate(double hitTime)
@@ -149,10 +118,6 @@ public abstract class HitObject_Game : PoolableObject
         // ? 이거 로직 왜 이럼 ㅋㅋ
 
         transform.DOKill();
-        _circleAnimationSeq.Kill();
-        _approachAnimationSeq.Kill();
-        _circleAnimationSeq = null;
-        _approachAnimationSeq = null;
         JudgementPopupUtility.Popup(transform.position + Vector3.up * 0.15f, _judgement);
         AudioPool.PopAudio(EAudioType.HitNormal);
 
