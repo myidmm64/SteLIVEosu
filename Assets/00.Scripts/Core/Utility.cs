@@ -31,17 +31,4 @@ public static class Utility
             return _cam;
         }
     }
-
-    private static string _songDirectory = null;
-    public static string SongDirectory
-    {
-        get
-        {
-            if(_songDirectory == null)
-            {
-                _songDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, "01.Songs"));
-            }
-            return _songDirectory;
-        }
-    }
 }
