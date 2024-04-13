@@ -41,7 +41,7 @@ public class ApproachCircle_Game : MonoBehaviour
         _fadeSeq?.Kill();
         _fadeSeq = DOTween.Sequence();
         spriteRenderer.color = noAlphaColor;
-        _fadeSeq.Append(spriteRenderer.DOFade(1f, duration));
+        _fadeSeq.Append(spriteRenderer.DOFade(1f, duration)).SetEase(Ease.Linear);
     }
 
     public void SizingAnimation(Vector3 startSize, Vector3 endSize, float duration)
@@ -49,6 +49,6 @@ public class ApproachCircle_Game : MonoBehaviour
         _sizingSeq?.Kill();
         _sizingSeq = DOTween.Sequence();
         transform.localScale = startSize;
-        _sizingSeq.Append(transform.DOScale(endSize, duration));
+        _sizingSeq.Append(transform.DOScale(endSize, duration)).SetEase(Ease.Linear);
     }
 }

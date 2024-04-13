@@ -18,7 +18,7 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
     private Beatmap _currentBeatmap = null;
 
     [SerializeField]
-    private CursorObject _cursor = null;
+    private Player _player = null;
     [SerializeField]
     private AudioSource _bgm = null;
 
@@ -27,13 +27,6 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
     private double _currentTime = 0;
     private double _currentMs = 0;
     public double CurrentMs => _currentMs;
-
-    // Create HitObject Setting
-    private const int _createOffset = 50;
-
-    private double _preemptDuration = 0;
-    private double _fadeinDuration = 0;
-    private float _circleRadius = 0f;
 
     private HitObject _currentHitObjData = null;
     [SerializeField]
@@ -47,10 +40,6 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
             [DevelopHelperObj.Instance.songSelectDropdown.value].text;
         SelectOsuFileData selectedFileData = DevelopHelperObj.Instance._developTestSelectOsuFileMap[osuFileKey];
         _currentBeatmap = selectedFileData.beatmap;
-
-        _preemptDuration = BeatmapUtility.GetApproachAnimationDuration(_currentBeatmap);
-        _fadeinDuration = BeatmapUtility.GetHitObjectFadeInDuration(_currentBeatmap);
-        _circleRadius = BeatmapUtility.GetCircleRadius(_currentBeatmap);
 
         _currentIndex = 0;
         _currentTime = 0;
@@ -69,92 +58,74 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
 
     public void CleanHitObjectQueue()
     {
-
+        if (_hitObjects.Count == 0) return;
+        while (true)
+        {
+            if (_hitObjects.Count == 0) break;
+            HitObject_Game hitObject = _hitObjects.Peek();
+            if (hitObject == null) break;
+            if (hitObject.IsDisable() == false)
+                break;
+            _hitObjects.Dequeue();
+            PoolManager.Instance.Push(hitObject);
+        }
     }
 
     private void Update()
     {
-        if (_isPlaying == false) return;
+        ReadBeatmap();
+    }
 
+    private void ReadBeatmap()
+    {
+        CleanHitObjectQueue();
         _currentTime += Time.deltaTime;
         _currentMs = TimeSpan.FromSeconds(_currentTime).TotalMilliseconds;
 
-        if (_currentHitObjData.StartTime - _preemptDuration - _createOffset + _offset < _currentMs)
+        if (_isPlaying == false) return;
+
+        if (_currentHitObjData.StartTime - _currentBeatmap.GetAnimationPreemptDuration() + _offset < _currentMs)
         {
             // Create
             HitObject_Game hitObject = PoolManager.Instance.Pop(EPoolType.HitObject) as HitObject_Game;
-            Vector2 hitObjectPosition = OsuPlayField.Instance.OsuPixelToWorldPosition(new Vector2(_currentHitObjData.Position.X, _currentHitObjData.Position.Y));
-            Vector3 circleSize = Vector2.one * _circleRadius;
-            hitObject.Init(_currentHitObjData, this, hitObjectPosition, circleSize, _preemptDuration, _fadeinDuration);
+            hitObject.Init(_currentHitObjData, _currentBeatmap, _currentMs, _offset);
             _hitObjects.Enqueue(hitObject);
 
             _currentIndex++;
-            _currentHitObjData = _currentBeatmap.HitObjects[_currentIndex];
-        }
-
-        /*
-        foreach (var hitObject in _currentBeatmap.HitObjects)
-        {
-            if (hitObject is Slider)
+            if (_currentIndex < _currentBeatmap.HitObjects.Count)
             {
-                Slider slider = (Slider)hitObject;
-                Debug.Log(slider.SliderPoints);
+                _currentHitObjData = _currentBeatmap.HitObjects[_currentIndex];
             }
-            else if (hitObject is OsuParsers.Beatmaps.Objects.HitCircle)
+            else
             {
-                Debug.Log(hitObject.StartTime + " " + hitObject.EndTime + " " + hitObject.Position);
+                _isPlaying = false;
             }
         }
-        return;
-        */
-        /*
-        if(_hitObjects.Count > 0)
-        {
-            _hitObjects.Peek().TestColor(Color.red);
-        }
-
-        if (!_bgm.isPlaying) return;
-        if (_currentIndex >= _hitObjectDatas.Count) return;
-
-        _currentTime = _bgm.time;
-        _currentMs = TimeSpan.FromSeconds(_currentTime).TotalMilliseconds;
-        if (_hitObjectDatas[_currentIndex].hitTime - _preemptDuration + _offset < _currentMs)
-        {
-            HitObject hitObject = PoolManager.Instance.Pop(EPoolType.HitObject) as HitObject;
-            Vector2 hitObjectPosition = _playField.OsuPixelToWorldPosition(new Vector2Int(_hitObjectDatas[_currentIndex].x, _hitObjectDatas[_currentIndex].y));
-            Vector2 hitObjectScale = Vector2.one * BeatmapUtility.GetCircleRadius(_beatmap);
-            hitObject.Init(this, _hitObjectDatas[_currentIndex].hitTime + _offset, hitObjectPosition, hitObjectScale);
-            _currentIndex++;
-            _hitObjects.Enqueue(hitObject);
-        }
-        */
     }
 
-    public void OnHit(InputAction.CallbackContext context)
+    public void Collect()
     {
-        if (context.started)
-        {
-            foreach (var hitObject in _hitObjects)
-            {
-                // üũ
-                if (_cursor.IsCollectedObject(hitObject.transform.position))
-                {
-                    /*
-                    if(hitObject != _hitObjects.Peek())
-                    {
-                        hitObject.ShakeAnimation();
-                        return;
-                    }
-                    */
+        if (_hitObjects.Count == 0) return;
 
-                    EJudgement judgement = hitObject.JudgementCalculate(_currentMs);
-                    if (judgement == EJudgement.None)
-                    {
-                        hitObject.ShakeAnimation();
-                        return;
-                    }
+        CleanHitObjectQueue();
+
+        foreach (var hitObject in _hitObjects)
+        {
+            if (_player.cursorObject.IsCollectedObject(hitObject.transform.position))
+            {
+                if (hitObject != _hitObjects.Peek())
+                {
+                    hitObject.ShakeAnimation();
                     return;
                 }
+
+                EJudgement judgement = hitObject.CollectObject(_currentMs);
+                if (judgement == EJudgement.None)
+                {
+                    hitObject.ShakeAnimation();
+                    return;
+                }
+                return;
             }
         }
     }
@@ -172,11 +143,11 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
     {
         foreach (var hitObject in _hitObjects)
         {
-            if (_cursor.IsCollectedObject(hitObject.transform.position))
+            if (_player.cursorObject.IsCollectedObject(hitObject.transform.position))
                 Gizmos.color = Color.red;
             else
                 Gizmos.color = Color.green;
-            Gizmos.DrawLine(_cursor.transform.position, hitObject.transform.position);
+            Gizmos.DrawLine(_player.cursorObject.transform.position, hitObject.transform.position);
         }
     }
 }

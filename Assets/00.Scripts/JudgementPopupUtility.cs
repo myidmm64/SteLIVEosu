@@ -21,8 +21,19 @@ public static class JudgementPopupUtility
                 return;
             }
         }
+        SJudgementSpriteData? spriteData = null;
+        foreach(var judgementSpriteData in  _judgementSpriteDB.judgementSpriteDatas)
+        {
+            if(judgementSpriteData.judgement == judgement)
+            {
+                spriteData = judgementSpriteData;
+                break;
+            }
+        }
+
+        if (spriteData == null) return;
         JudgementPopupPoolable popup = PoolManager.Instance.Pop(EPoolType.JudgementPopup) as JudgementPopupPoolable;
-        popup.SetSprite(_judgementSpriteDB.judgementSpriteDatas.First(x => x.judgement == judgement).sprite);
+        popup.SetSprite(spriteData.Value.sprite);
         popup.transform.position = position;
         popup.PopupAnimation();
     }

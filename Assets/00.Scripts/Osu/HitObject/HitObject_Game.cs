@@ -1,9 +1,11 @@
 using DG.Tweening;
+using OsuParsers.Beatmaps;
 using OsuParsers.Beatmaps.Objects;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public enum EJudgement
 {
@@ -11,7 +13,7 @@ public enum EJudgement
     Great,  //300
     Ok,     //100
     Meh,    //50
-    Miss    //miss
+    Miss,   //miss
 }
 
 public abstract class HitObject_Game : PoolableObject
@@ -38,14 +40,14 @@ public abstract class HitObject_Game : PoolableObject
         }
     }
 
-    private HitObject _hitObjectData = null;
-    private BeatmapPlayer _beatmapPlayer = null;
+    protected float _offset = 0f;
+    protected HitObject _hitObjectData = null;
     private Vector2 _position = Vector2.zero;
     public Vector2 Position => _position;
+    protected Beatmap _beatmap = null;
 
-    protected EJudgement _judgement = EJudgement.None;
-
-    private double _hitTime = 0;
+    protected double _hitTime = 0;
+    protected bool _isDisable = false;
 
     protected ApproachCircle_Game _approachCircle = null;
 
@@ -62,8 +64,9 @@ public abstract class HitObject_Game : PoolableObject
 
     public override void PushInit()
     {
-        _spriteRenderer.DOKill();
-        TestColor(Color.white);
+        //_spriteRenderer.DOKill();
+        //TestColor(Color.white);
+        _isDisable = false;
     }
 
     public override void StartInit()
@@ -72,17 +75,28 @@ public abstract class HitObject_Game : PoolableObject
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    public virtual void Init(HitObject hitObjectData, BeatmapPlayer beatmapPlayer, Vector2 pos, Vector2 circleSize, double preemptDuration, double fadeinDuration)
+    public virtual void Init(HitObject hitObjectData, Beatmap beatmap, double createTime, float offset)
     {
+        _offset = offset;
         _hitObjectData = hitObjectData;
-        _beatmapPlayer = beatmapPlayer;
-        _position = pos;
+        _beatmap = beatmap;
 
+        Vector2 hitObjectPosition = OsuPlayField.Instance.OsuPixelToWorldPosition(new Vector2(hitObjectData.Position.X, hitObjectData.Position.Y));
+        Vector2 circleSize = Vector2.one * beatmap.GetCircleRadius();
+        _position = hitObjectPosition;
         transform.position = _position;
         transform.localScale = circleSize;
+        SetHitTime();
     }
 
+    public abstract void SetHitTime();
+
     public virtual void AnimationStart()
+    {
+
+    }
+
+    protected virtual void JudgementAction(double hitTime, EJudgement judgement)
     {
 
     }
@@ -93,39 +107,49 @@ public abstract class HitObject_Game : PoolableObject
         // transform.DOShakePosition(0.1f);
     }
 
-    public EJudgement JudgementCalculate(double hitTime)
+    public double GetHitError(double hitTime)
     {
-        float od = 0f;//_beatmapPlayer.beatmap.osuFile.difficulty.overallDifficulty;
-
         double hitError = hitTime - _hitTime;
         if (hitError < 0) hitError *= -1;
-        Debug.Log($"Hit Error {hitError}");
+        return hitError;
+    }
 
+    public EJudgement GetJudgement(double hitTime)
+    {
+        double hitError = GetHitError(hitTime);
+        float od = _beatmap.DifficultySection.OverallDifficulty;
+
+        EJudgement judgement = EJudgement.None;
         if (hitError < 80 - 6 * od)
-            _judgement = EJudgement.Great;
+            judgement = EJudgement.Great;
         else if (hitError < 140 - 8 * od)
-            _judgement = EJudgement.Ok;
+            judgement = EJudgement.Ok;
         else if (hitError < 200 - 10 * od)
-            _judgement = EJudgement.Meh;
+            judgement = EJudgement.Meh;
         else if (hitError < 400)
-            _judgement = EJudgement.Miss;
+            judgement = EJudgement.Miss;
         else
+            judgement = EJudgement.None;
+
+        return judgement;
+    }
+
+    public bool IsDisable()
+    {
+        if (_isDisable) return true;
+        double currentMs = BeatmapPlayer.Instance.CurrentMs;
+        EJudgement tempJudgement = GetJudgement(currentMs);
+        if(currentMs > _hitTime && (tempJudgement == EJudgement.Miss || tempJudgement == EJudgement.None))
         {
-            _judgement = EJudgement.None;
-            return _judgement;
+            _isDisable = true;
         }
+        return _isDisable;
+    }
 
-        // ? 이거 로직 왜 이럼 ㅋㅋ
-
-        transform.DOKill();
-        JudgementPopupUtility.Popup(transform.position + Vector3.up * 0.15f, _judgement);
-        AudioPool.PopAudio(EAudioType.HitNormal);
-
-        _beatmapPlayer.DequeueObject();
-        PoolManager.Instance.Push(this);
-        Debug.Log(_judgement);
-
-        // 400보다 오차가 클 때, 덜덜 애니메이션
-        return _judgement;
+    public EJudgement CollectObject(double hitTime)
+    {
+        EJudgement judgement = GetJudgement(hitTime);
+        JudgementAction(hitTime, judgement);
+        return judgement;
     }
 }

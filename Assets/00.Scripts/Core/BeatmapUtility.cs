@@ -3,14 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class BeatmapUtility
+public static class BeatmapExtensions
 {
-    public static float GetCircleRadius(Beatmap beatmap)
+    public static float GetCircleRadius(this Beatmap beatmap)
     {
         return 1f - 0.082f * beatmap.DifficultySection.CircleSize;
     }
 
-    public static double GetApproachAnimationDuration(Beatmap beatmap)
+    public static double GetAnimationPreemptDuration(this Beatmap beatmap)
     {
         float ar = beatmap.DifficultySection.ApproachRate;
         if (ar < 5)
@@ -22,7 +22,7 @@ public static class BeatmapUtility
         return 0;
     }
 
-    public static double GetHitObjectFadeInDuration(Beatmap beatmap)
+    public static double GetHitObjectFadeInDuration(this Beatmap beatmap)
     {
         float ar = beatmap.DifficultySection.ApproachRate;
         if (ar < 5)
