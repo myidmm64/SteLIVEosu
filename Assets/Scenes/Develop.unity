@@ -3908,7 +3908,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5e2ea8b24e0f104f8850c69d26a4dd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _offset: 0
+  _offset: 30
   _player: {fileID: 1370419358}
   _bgm: {fileID: 1014817457}
 --- !u!1 &2059955876

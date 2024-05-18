@@ -83,7 +83,7 @@ public class BeatmapPlayer : MonoSingleTon<BeatmapPlayer>
 
         if (_currentHitObjData.StartTime - _currentBeatmap.GetAnimationPreemptDuration() + _offset < _currentMs)
         {
-            Debug.Log($"isNewCombo : {_currentHitObjData.IsNewCombo} , ComboOffset : {_currentHitObjData.ComboOffset}");
+            // Debug.Log($"isNewCombo : {_currentHitObjData.IsNewCombo} , ComboOffset : {_currentHitObjData.ComboOffset}");
             // Create
             HitObject_Game hitObject = PoolManager.Instance.Pop(EPoolType.HitObject) as HitObject_Game;
             hitObject.Init(_currentHitObjData, _currentBeatmap, _currentMs, _offset);
